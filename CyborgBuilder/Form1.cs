@@ -11,6 +11,7 @@ using CyborgBuilder.Keyboard;
 using CyborgBuilder.Keyboard.Operations;
 using CyborgBuilder.Mouse.Operations;
 using CyborgBuilder.Mouse;
+using CyborgBuilder.Robot;
 
 namespace CyborgBuilder
 {
@@ -21,16 +22,32 @@ namespace CyborgBuilder
             InitializeComponent();
         }
 
+        readonly Bot Cyborg = Bot.Instance;
         private void Form1_Load(object sender, EventArgs e)
         {
-            KeyboardTask kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
-            MouseTask mT = new MouseTask(MouseFunctions.Function.SetCursorPosition, 0, 0)
-                .UpdateOnIteration(true, 50, 50);
-            for (int i = 0; i < 10; i++)
-            {
-                mT.Invoke();
-                Thread.Sleep(1500);
-            }
+            var kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
+            var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
+            var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
+
+            
+            string file = @"c:\users\djimenez\desktop\kt.xml";
+
+            TaskRepository.Repository repo = TaskRepository.Repository.DeSerialize(file);//new TaskRepository.Repository();
+            MessageBox.Show("repo");
+            //repo.Add(kT);
+            //repo.Add(kt2);
+            //repo.Add(kt3);
+            //repo.Serialize(@"c:\users\djimenez\desktop\kt.xml");
+
+
+            //KeyboardTask kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
+            //MouseTask mT = new MouseTask(MouseFunctions.Function.SetCursorPosition, 0, 0)
+            //    .UpdateOnIteration(true, 50, 50);
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    mT.Invoke();
+            //    Thread.Sleep(1500);
+            //}
         }
     }
 }

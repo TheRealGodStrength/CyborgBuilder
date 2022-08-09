@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
+
 using CyborgBuilder.TaskRepository;
 using CyborgBuilder.Keyboard.Operations;
 
@@ -11,7 +15,15 @@ namespace CyborgBuilder.Keyboard
 {
     public class KeyboardTask : Task, ITask
     {
+        /* Signature consist of in order:
+                KeyboardFunction
+                
+         
+         */
         public int Iterations = -1;
+        public Queue<string> TextQueue { get; set; }
+        private string[] inputText = Array.Empty<string>();
+        public Func<KeyboardFunctions.Lines, string[], Action> DoWork = new Func<KeyboardFunctions.Lines, string[], Action>(KeyboardFunctions.InputText);
         private KeyboardFunctions.Lines lines;
         public KeyboardFunctions.Lines Lines
         {
@@ -38,30 +50,57 @@ namespace CyborgBuilder.Keyboard
                 }
             }
         }
-        public Queue<string> TextQueue = new Queue<string>();
-        private string[] inputText = Array.Empty<string>();
-
-        public Func<KeyboardFunctions.Lines, string[], Action> DoWork = new Func<KeyboardFunctions.Lines, string[], Action>(KeyboardFunctions.InputText);
         public KeyboardTask(KeyboardFunctions.Lines lines)
         {
             Lines = lines;
+            Signature = new object[] { lines, "string one", "string two" };
         }
+        public ITask LoadFromSignature(object[] signature)
+        {
+            return this;
+        }
+        public KeyboardTask() { }
         public new void Invoke()
         {
-            if(Lines == KeyboardFunctions.Lines.FromQueue && TextQueue.Count > 0)
+            Action action;
+            if (Lines == KeyboardFunctions.Lines.FromQueue && TextQueue.Count > 0)
             {
-                var action = new Action(delegate ()
+                action = new Action(delegate ()
                 {
                     Clipboard.SetText(TextQueue.Dequeue());
                     SendKeys.Send("^(v)");
                 });
-                action.Invoke(); 
+                action.Invoke();
             }
-
+            else
+            {
+                action = DoWork(Lines, inputText);
+                action.Invoke();
+            }
+            if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
+        }
+        public void Serialize(string fileName)
+        {
+            XmlSerializer s = new XmlSerializer(typeof(KeyboardTask));
+            TextWriter tw = new StreamWriter(fileName);
+            s.Serialize(tw, this);
+            tw.Close();
         }
     }
     public static class KeyboardTaskExt
     {
+        public static ITask LoadFromSignature(this ITask task, object[] signature)
+        {
+            task.LoadFromSignature(signature);
+            return task;
+        }
+        public static KeyboardTask SleepTime(this KeyboardTask kT, double inSeconds)
+        {
+            float m = (float)inSeconds * 1000;
+            kT.SleepTime = (int)m;
+
+            return kT;
+        }
         public static KeyboardTask UpdateOnIteration(this KeyboardTask kT, bool updateOnIteration)
         {
             kT.UpdateOnIteration = updateOnIteration;

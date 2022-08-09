@@ -10,7 +10,21 @@ namespace CyborgBuilder.Mouse
     {
         public int Y { get; set; }
         public int X { get; set; }
+
         public int[] UpdatePoints = new int[2] { 0, 0 };
+        private static MouseTask instance = null;
+        public static MouseTask Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new MouseTask();
+                }
+                return instance;
+            }
+        }
+        MouseTask() { }
         public MouseFunctions.Function Function { get; set; }
         public Func<MouseFunctions.Function, object[], Action> DoWork = new Func<MouseFunctions.Function, object[], Action>(MouseFunctions.Do);
         
@@ -19,14 +33,35 @@ namespace CyborgBuilder.Mouse
             Function = function;
             ActionArguments = args;
             UpdateOnIteration = false;
+            Signature = new object[] { function, ActionArguments };
         }
-        public MouseTask(MouseFunctions.Function f, int x, int y)
+        public MouseTask(MouseFunctions.Function function, int x, int y)
         {
-            Function = f;
+            Function = function;
             X = x;
             Y = y;
             ActionArguments = new object[] { x, y };
             UpdateOnIteration = false;
+            Signature = new object[] { function, ActionArguments };
+        }
+        public MouseTask(object[] signature, string st)
+        {
+            if (signature.Length != 3) throw new Exception();
+            if (signature[0].GetType() != typeof(MouseFunctions.Function)) throw new Exception();
+            if (signature[1].GetType() != typeof(object[])) throw new Exception();
+            if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
+
+            Function = (MouseFunctions.Function)signature[0];
+            ActionArguments = (object[])signature[1];
+            if (signature[2] != null && signature[2].GetType() == typeof(int[]))
+            {
+                UpdatePoints = (int[])signature[2];
+                UpdateOnIteration = true;
+            }
+        }
+        public ITask LoadFromSignature(object[] signature)
+        {
+            return this.From(signature);
         }
         public new void Invoke()
         {
@@ -38,10 +73,43 @@ namespace CyborgBuilder.Mouse
             }
             var action = DoWork(Function, ActionArguments);
             action.Invoke();
+            if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
         }
     }
     public static class MouseTaskExt
     {
+        public static ITask LoadFromSignature(this ITask task, object[] signature)
+        {
+            task.LoadFromSignature(signature);
+            return task;
+        }
+        public static ITask From(this ITask task, object[] signature)
+        {
+            if (signature.Length != 3) throw new Exception();
+            if (signature[0].GetType() != typeof(MouseFunctions.Function)) throw new Exception();
+            if (signature[1].GetType() != typeof(object[])) throw new Exception();
+            if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
+
+            task = new MouseTask((MouseFunctions.Function)signature[0], (object[])signature[1])
+                .FromSignature(signature);
+            return task;
+        }
+        public static MouseTask FromSignature(this MouseTask mT, object[] args)
+        {
+            if(args[2] != null && args[2].GetType() == typeof(int[]))
+            {
+                mT.UpdatePoints = (int[])args[2];
+                mT.UpdateOnIteration = true;
+            }
+            return mT;
+        }
+        public static MouseTask SleepTime(this MouseTask mT, double inSeconds)
+        {
+            float m = (float)inSeconds * 1000;
+            mT.SleepTime = (int)m;
+
+            return mT;
+        }
         public static MouseTask UpdateOnIteration(this MouseTask mT, bool updateOnIteration, int x, int y)
         {
             mT.UpdateOnIteration = updateOnIteration;
