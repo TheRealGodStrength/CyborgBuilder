@@ -31,19 +31,35 @@ namespace CyborgBuilder.Robot
             }
         }
         #endregion
-        public Repository Repo = new Repository();
+        private Repository Repo = new Repository();
         public void ExportSignatureRepository(string fileName)
         {
-            object[] sigs = new object[Tasks.Count];
-
-            for(int i = 0; i < Tasks.Count; i++)
-            {
-                sigs[i] = Tasks[i].Signature;
-            }
-            Repo.Signatures = sigs;
             Repo.Serialize(fileName);
         }
+        public void ImportSignatureRepository(string fileName)
+        {
+            Repo = null;
+            Repo = Repository.DeSerialize(fileName);
+            ProcessSignatures();
+        }
+        void ProcessSignatures()
+        {
+            Tasks.Clear();
+            foreach(object[] s in Repo.Signatures)
+            {
+                if (s[0].GetType() == typeof(KeyboardFunctions.Lines))
+                {
+                    ITask task = new KeyboardTask().LoadFromSignature(s);
 
+                    Tasks.Add(task);
+                }
+                else
+                {
+                    ITask task = new MouseTask().LoadFromSignature(s);
+                    Tasks.Add(task);
+                }
+            }
+        }
         public List<ITask> Tasks = new List<ITask>();
 
         public void AddKeyboardTask(KeyboardFunctions.Lines function, bool updateOnIteration = false)

@@ -25,15 +25,26 @@ namespace CyborgBuilder
         readonly Bot Cyborg = Bot.Instance;
         private void Form1_Load(object sender, EventArgs e)
         {
-            var kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
-            var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
-            var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
-
+            //var kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
+            //var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
+            //var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
+            
             
             string file = @"c:\users\djimenez\desktop\kt.xml";
 
-            TaskRepository.Repository repo = TaskRepository.Repository.DeSerialize(file);//new TaskRepository.Repository();
-            MessageBox.Show("repo");
+            //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 50, 50);
+            //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 100, 100);
+            //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 150, 150);
+
+            Cyborg.ImportSignatureRepository(file);
+
+            foreach(TaskRepository.ITask task in Cyborg.Tasks)
+            {
+                task.Invoke();
+                Thread.Sleep(2000);
+            }
+            Thread.Sleep(2000);
+            
             //repo.Add(kT);
             //repo.Add(kt2);
             //repo.Add(kt3);

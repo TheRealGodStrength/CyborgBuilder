@@ -57,6 +57,7 @@ namespace CyborgBuilder.Keyboard
         }
         public ITask LoadFromSignature(object[] signature)
         {
+            inputText = (string[])signature[1];
             return this;
         }
         public KeyboardTask() { }
@@ -92,6 +93,12 @@ namespace CyborgBuilder.Keyboard
         public static ITask LoadFromSignature(this ITask task, object[] signature)
         {
             task.LoadFromSignature(signature);
+            return task;
+        }
+        public static ITask From(this ITask task, object[] signature)
+        {
+            task = new KeyboardTask((KeyboardFunctions.Lines)signature[0])
+                .LoadFromSignature(signature);
             return task;
         }
         public static KeyboardTask SleepTime(this KeyboardTask kT, double inSeconds)

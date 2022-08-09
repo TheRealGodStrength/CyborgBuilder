@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using CyborgBuilder.Mouse.Operations;
 using CyborgBuilder.TaskRepository;
@@ -42,7 +43,7 @@ namespace CyborgBuilder.Mouse
             Y = y;
             ActionArguments = new object[] { x, y };
             UpdateOnIteration = false;
-            Signature = new object[] { function, ActionArguments };
+            Signature = new object[] { function, ActionArguments, UpdateOnIteration };
         }
         public MouseTask(object[] signature, string st)
         {
@@ -61,7 +62,24 @@ namespace CyborgBuilder.Mouse
         }
         public ITask LoadFromSignature(object[] signature)
         {
+
             return this.From(signature);
+        }
+        private static bool FindBoolean(object obj)
+        {
+            if(obj.GetType() == typeof(bool))
+            {
+                return (bool)obj;
+            }
+            return false;
+        }
+        private static bool FindActionArgs(object obj)
+        {
+            if(obj.GetType() == typeof(object[]))
+            {
+                return (bool)obj;
+            }
+            return false;
         }
         public new void Invoke()
         {
@@ -85,10 +103,10 @@ namespace CyborgBuilder.Mouse
         }
         public static ITask From(this ITask task, object[] signature)
         {
-            if (signature.Length != 3) throw new Exception();
-            if (signature[0].GetType() != typeof(MouseFunctions.Function)) throw new Exception();
+            if (signature.Length != 2) throw new Exception();
+            if (signature[0].GetType() != typeof(int)) throw new Exception();
             if (signature[1].GetType() != typeof(object[])) throw new Exception();
-            if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
+           // if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
 
             task = new MouseTask((MouseFunctions.Function)signature[0], (object[])signature[1])
                 .FromSignature(signature);
@@ -96,9 +114,9 @@ namespace CyborgBuilder.Mouse
         }
         public static MouseTask FromSignature(this MouseTask mT, object[] args)
         {
-            if(args[2] != null && args[2].GetType() == typeof(int[]))
+            if(args[1] != null && args[1].GetType() == typeof(int[]))
             {
-                mT.UpdatePoints = (int[])args[2];
+                mT.UpdatePoints = (int[])args[1];
                 mT.UpdateOnIteration = true;
             }
             return mT;
