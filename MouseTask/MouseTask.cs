@@ -50,7 +50,7 @@ namespace CyborgBuilder.Mouse
             Function = function;
             ActionArguments = args;
             UpdateOnIteration = false;
-            Signature = new object[] { function, ActionArguments };
+            CreateSignature();
         }
         public MouseTask(MouseFunctions.Function function, int x, int y)
         {
@@ -60,7 +60,7 @@ namespace CyborgBuilder.Mouse
             Y = y;
             ActionArguments = new object[] { x, y };
             UpdateOnIteration = false;
-            Signature = new object[] { function, ActionArguments, UpdateOnIteration };
+            CreateSignature();
         }
         public MouseTask(object[] signature, string st)
         {
@@ -83,21 +83,16 @@ namespace CyborgBuilder.Mouse
 
             return this.From(signature);
         }
-        private static bool FindBoolean(object obj)
+        private void CreateSignature()
         {
-            if(obj.GetType() == typeof(bool))
-            {
-                return (bool)obj;
-            }
-            return false;
-        }
-        private static bool FindActionArgs(object obj)
-        {
-            if(obj.GetType() == typeof(object[]))
-            {
-                return (bool)obj;
-            }
-            return false;
+            object[] signature = new object[6];
+            signature[0] = Type;
+            signature[1] = Function;
+            signature[2] = Y;
+            signature[3] = X;
+            signature[4] = UpdatePoints;
+            signature[5] = UpdateOnIteration;
+            Signature = signature;
         }
         public new void Invoke()
         {
