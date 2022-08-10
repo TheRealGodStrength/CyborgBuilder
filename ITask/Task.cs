@@ -16,11 +16,17 @@ namespace CyborgBuilder.TaskRepository
         public int SleepTime { get; set; }
         public bool UpdateOnIteration { get; set; }
         public object[] ActionArguments { get; set; }
-
-        
+        public int Iterations { get; set; }
+        public string[] InputText { get; set; }
+        public void TaskFunction(object function) { }
         public void Invoke()
         {
 
         }
+    }
+    public enum TaskType
+    {
+        Keyboard,
+        Mouse
     }
 }

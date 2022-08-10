@@ -15,15 +15,39 @@ namespace CyborgBuilder.Keyboard
 {
     public class KeyboardTask : Task, ITask
     {
-        /* Signature consist of in order:
-                KeyboardFunction
-                
-         
+        /* Signature includes
+            Type
+            KeyboardFunction
+            Iterations
+            inputText
+            UpdateOnIteration
+
          */
-        public int Iterations = -1;
+        public TaskType Type { get; }
+        private static KeyboardTask instance = null;
+        public static KeyboardTask Instance
+        {
+            get
+            {
+                if(instance == null)
+                {
+                    instance = new KeyboardTask();
+                }
+                return instance;
+            }
+        }
         public Queue<string> TextQueue { get; set; }
         private string[] inputText = Array.Empty<string>();
-        public Func<KeyboardFunctions.Lines, string[], Action> DoWork = new Func<KeyboardFunctions.Lines, string[], Action>(KeyboardFunctions.InputText);
+        public new string[] InputText
+        {
+            get { return inputText; }
+
+            set
+            {
+                inputText = value;
+            }
+        }
+        public Func<KeyboardFunctions.Lines, string[], Action> DoWork { get; set; }//  = new Func<KeyboardFunctions.Lines, string[], Action>(KeyboardFunctions.InputText);
         private KeyboardFunctions.Lines lines;
         public KeyboardFunctions.Lines Lines
         {
@@ -37,7 +61,7 @@ namespace CyborgBuilder.Keyboard
                 if(Lines == KeyboardFunctions.Lines.FromQueue)
                 {
                     KeyboardFunctions.Input(ref inputText);
-                    foreach(string s in inputText)
+                    foreach(string s in InputText)
                     {
                         TextQueue.Enqueue(s);
                     }
@@ -50,17 +74,32 @@ namespace CyborgBuilder.Keyboard
                 }
             }
         }
+        public new void TaskFunction(object function)
+        {
+            lines = (KeyboardFunctions.Lines)function;
+        }
         public KeyboardTask(KeyboardFunctions.Lines lines)
         {
             Lines = lines;
-            Signature = new object[] { lines, "string one", "string two" };
+            Type = TaskType.Keyboard;
+            CreateSignature();
         }
         public ITask LoadFromSignature(object[] signature)
         {
-            inputText = (string[])signature[1];
+            InputText = (string[])signature[1];
             return this;
         }
-        public KeyboardTask() { }
+        public KeyboardTask() { Type = TaskType.Keyboard; }
+        private void CreateSignature()
+        {
+            object[] signature = new object[5];
+            signature[0] = Type;
+            signature[1] = Lines;
+            signature[2] = Iterations;
+            signature[3] = InputText;
+            signature[4] = UpdateOnIteration;
+            Signature = signature;
+        }
         public new void Invoke()
         {
             Action action;
@@ -75,24 +114,22 @@ namespace CyborgBuilder.Keyboard
             }
             else
             {
-                action = DoWork(Lines, inputText);
+                action = DoWork(Lines, InputText);
                 action.Invoke();
             }
             if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
         }
-        public void Serialize(string fileName)
-        {
-            XmlSerializer s = new XmlSerializer(typeof(KeyboardTask));
-            TextWriter tw = new StreamWriter(fileName);
-            s.Serialize(tw, this);
-            tw.Close();
-        }
     }
     public static class KeyboardTaskExt
     {
-        public static ITask LoadFromSignature(this ITask task, object[] signature)
+        public static ITask LoadSignature(this ITask task, object[] signature)
         {
-            task.LoadFromSignature(signature);
+            if (signature[1].GetType() != typeof(KeyboardFunctions.Lines)) throw new Exception();
+            task.TaskFunction(signature[1]);
+            task.Iterations = (int)signature[2];
+            task.InputText = (string[])signature[3];    
+            task.UpdateOnIteration = (bool)signature[4];
+            
             return task;
         }
         public static ITask From(this ITask task, object[] signature)

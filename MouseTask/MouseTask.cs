@@ -1,14 +1,29 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Xml;
+using System.Xml.Serialization;
 using System.Runtime.InteropServices;
 using CyborgBuilder.Mouse.Operations;
 using CyborgBuilder.TaskRepository;
+
 
 namespace CyborgBuilder.Mouse
 {
     public class MouseTask : Task, ITask
     {
+        /* Signature includes
+         * Type
+         * MouseFunction
+         * Y
+         * X
+         * UpdatePoints
+         * UpdateOnIteration
+         
+         */
+
+        public TaskType Type { get; }
         public int Y { get; set; }
         public int X { get; set; }
 
@@ -25,12 +40,13 @@ namespace CyborgBuilder.Mouse
                 return instance;
             }
         }
-        MouseTask() { }
+        MouseTask() { Type = TaskType.Mouse; }
         public MouseFunctions.Function Function { get; set; }
         public Func<MouseFunctions.Function, object[], Action> DoWork = new Func<MouseFunctions.Function, object[], Action>(MouseFunctions.Do);
         
         public MouseTask(MouseFunctions.Function function, params object[] args)
         {
+            Type = TaskType.Mouse;
             Function = function;
             ActionArguments = args;
             UpdateOnIteration = false;
@@ -38,6 +54,7 @@ namespace CyborgBuilder.Mouse
         }
         public MouseTask(MouseFunctions.Function function, int x, int y)
         {
+            Type = TaskType.Mouse;
             Function = function;
             X = x;
             Y = y;
@@ -47,6 +64,7 @@ namespace CyborgBuilder.Mouse
         }
         public MouseTask(object[] signature, string st)
         {
+            Type = TaskType.Mouse;
             if (signature.Length != 3) throw new Exception();
             if (signature[0].GetType() != typeof(MouseFunctions.Function)) throw new Exception();
             if (signature[1].GetType() != typeof(object[])) throw new Exception();

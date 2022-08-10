@@ -28,7 +28,8 @@ namespace CyborgBuilder
             //var kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
             //var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
             //var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
-            
+
+
             
             string file = @"c:\users\djimenez\desktop\kt.xml";
 
