@@ -80,21 +80,21 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CyborgBuilder.Keyboard.Task\CyborgBuilder.Keyboard.Task.csproj">
+    <ProjectReference Include="..\CyborgBuilder.Keyboard.Task\CyborgBuilder.Keyboard.csproj">
       <Project>{4d61d8e2-17fd-4e9c-b592-be8ce4ea356e}</Project>
-      <Name>CyborgBuilder.Keyboard.Task</Name>
+      <Name>CyborgBuilder.Keyboard</Name>
     </ProjectReference>
     <ProjectReference Include="..\CyborgBuilder.Robot\CyborgBuilder.Robot.csproj">
       <Project>{7b458039-088d-493b-aca7-02e4fbc7cf87}</Project>
       <Name>CyborgBuilder.Robot</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ITask\CyborgBuilder.TaskRepository.csproj">
+    <ProjectReference Include="..\ITask\CyborgBuilder.TaskRepo.csproj">
       <Project>{c3957655-b67e-466e-b71a-fdfac2309299}</Project>
-      <Name>CyborgBuilder.TaskRepository</Name>
+      <Name>CyborgBuilder.TaskRepo</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MouseTask\CyborgBuilder.Mouse.Task.csproj">
+    <ProjectReference Include="..\MouseTask\CyborgBuilder.Mouse.csproj">
       <Project>{c48a93bf-1a97-4d7e-b164-1eddd504f31c}</Project>
-      <Name>CyborgBuilder.Mouse.Task</Name>
+      <Name>CyborgBuilder.Mouse</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

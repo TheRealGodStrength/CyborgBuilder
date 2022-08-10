@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CyborgBuilder.TaskRepository;
 
-namespace CyborgBuilder.TaskRepository
+namespace CyborgBuilder.TaskRepo
 {
     public interface ITask
     {

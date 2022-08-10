@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Serialization;
-
-using CyborgBuilder.TaskRepository;
-using CyborgBuilder.Keyboard.Operations;
+using CyborgBuilder.TaskRepo;
 
 namespace CyborgBuilder.Keyboard
 {
@@ -120,40 +115,6 @@ namespace CyborgBuilder.Keyboard
             if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
         }
     }
-    public static class KeyboardTaskExt
-    {
-        public static ITask LoadSignature(this ITask task, object[] signature)
-        {
-            if (signature[1].GetType() != typeof(KeyboardFunctions.Lines)) throw new Exception();
-            task.TaskFunction(signature[1]);
-            task.Iterations = (int)signature[2];
-            task.InputText = (string[])signature[3];    
-            task.UpdateOnIteration = (bool)signature[4];
-            
-            return task;
-        }
-        public static ITask From(this ITask task, object[] signature)
-        {
-            task = new KeyboardTask((KeyboardFunctions.Lines)signature[0])
-                .LoadFromSignature(signature);
-            return task;
-        }
-        public static KeyboardTask SleepTime(this KeyboardTask kT, double inSeconds)
-        {
-            float m = (float)inSeconds * 1000;
-            kT.SleepTime = (int)m;
-
-            return kT;
-        }
-        public static KeyboardTask UpdateOnIteration(this KeyboardTask kT, bool updateOnIteration)
-        {
-            kT.UpdateOnIteration = updateOnIteration;
-            return kT;
-        }
-    }
-}
-namespace CyborgBuilder.Keyboard.Operations
-{
     public static class KeyboardFunctions
     {
         public static Action InputText(this Lines lines, string[] text)
@@ -273,6 +234,37 @@ namespace CyborgBuilder.Keyboard.Operations
             Array.Resize(ref input, textBox.Lines.Where(line => !string.IsNullOrWhiteSpace(line)).Count());
             input = textBox.Lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
             return dialogResult;
+        }
+    }
+    public static class KeyboardTaskExt
+    {
+        public static ITask LoadSignature(this ITask task, object[] signature)
+        {
+            if (signature[1].GetType() != typeof(KeyboardFunctions.Lines)) throw new Exception();
+            task.TaskFunction(signature[1]);
+            task.Iterations = (int)signature[2];
+            task.InputText = (string[])signature[3];    
+            task.UpdateOnIteration = (bool)signature[4];
+            
+            return task;
+        }
+        public static ITask From(this ITask task, object[] signature)
+        {
+            task = new KeyboardTask((KeyboardFunctions.Lines)signature[0])
+                .LoadFromSignature(signature);
+            return task;
+        }
+        public static KeyboardTask SleepTime(this KeyboardTask kT, double inSeconds)
+        {
+            float m = (float)inSeconds * 1000;
+            kT.SleepTime = (int)m;
+
+            return kT;
+        }
+        public static KeyboardTask UpdateOnIteration(this KeyboardTask kT, bool updateOnIteration)
+        {
+            kT.UpdateOnIteration = updateOnIteration;
+            return kT;
         }
     }
 }

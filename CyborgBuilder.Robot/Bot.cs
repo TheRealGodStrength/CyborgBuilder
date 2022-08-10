@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CyborgBuilder.Keyboard;
-using CyborgBuilder.Keyboard.Operations;
 using CyborgBuilder.Mouse;
-using CyborgBuilder.Mouse.Operations;
-using CyborgBuilder.TaskRepository;
+using CyborgBuilder.TaskRepo;
 
 namespace CyborgBuilder.Robot
 {
@@ -40,26 +38,8 @@ namespace CyborgBuilder.Robot
         {
             Repo = null;
             Repo = Repository.DeSerialize(fileName);
-            ProcessSignatures();
         }
-        void ProcessSignatures()
-        {
-            Tasks.Clear();
-            foreach(object[] s in Repo.Signatures)
-            {
-                if (s[0].GetType() == typeof(KeyboardFunctions.Lines))
-                {
-                    ITask task = new KeyboardTask().LoadFromSignature(s);
 
-                    Tasks.Add(task);
-                }
-                else
-                {
-                    ITask task = new MouseTask().LoadFromSignature(s);
-                    Tasks.Add(task);
-                }
-            }
-        }
         public List<ITask> Tasks = new List<ITask>();
 
         public void AddKeyboardTask(KeyboardFunctions.Lines function, bool updateOnIteration = false)
@@ -91,6 +71,16 @@ namespace CyborgBuilder.Robot
             foreach(var task in Tasks)
             {
                 task.Invoke();
+            }
+        }
+        public void UnloadFromRepo()
+        {
+            foreach(object[] s in Repo.Signatures)
+            {
+                switch (s[0].GetType())
+                {
+
+                }
             }
         }
         public static T[] ResizeInitializeArray<T>(int start, int length, ref T[] array) where T : new()

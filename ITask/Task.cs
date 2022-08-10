@@ -7,7 +7,7 @@ using System.Xml;
 using System.Xml.Serialization;
 
 
-namespace CyborgBuilder.TaskRepository
+namespace CyborgBuilder.TaskRepo
 {
     public class Task 
     {

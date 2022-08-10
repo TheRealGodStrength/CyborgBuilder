@@ -4,12 +4,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder", "CyborgBuilder\CyborgBuilder.csproj", "{98EF7410-6057-4CC6-BFDF-85882F2650F3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7B458039-088D-493B-ACA7-02E4FBC7CF87} = {7B458039-088D-493B-ACA7-02E4FBC7CF87}
+		{C3957655-B67E-466E-B71A-FDFAC2309299} = {C3957655-B67E-466E-B71A-FDFAC2309299}
+		{C48A93BF-1A97-4D7E-B164-1EDDD504F31C} = {C48A93BF-1A97-4D7E-B164-1EDDD504F31C}
+		{4D61D8E2-17FD-4E9C-B592-BE8CE4EA356E} = {4D61D8E2-17FD-4E9C-B592-BE8CE4EA356E}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.Mouse.Task", "MouseTask\CyborgBuilder.Mouse.Task.csproj", "{C48A93BF-1A97-4D7E-B164-1EDDD504F31C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.Mouse", "MouseTask\CyborgBuilder.Mouse.csproj", "{C48A93BF-1A97-4D7E-B164-1EDDD504F31C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.TaskRepository", "ITask\CyborgBuilder.TaskRepository.csproj", "{C3957655-B67E-466E-B71A-FDFAC2309299}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.TaskRepo", "ITask\CyborgBuilder.TaskRepo.csproj", "{C3957655-B67E-466E-B71A-FDFAC2309299}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.Keyboard.Task", "CyborgBuilder.Keyboard.Task\CyborgBuilder.Keyboard.Task.csproj", "{4D61D8E2-17FD-4E9C-B592-BE8CE4EA356E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.Keyboard", "CyborgBuilder.Keyboard.Task\CyborgBuilder.Keyboard.csproj", "{4D61D8E2-17FD-4E9C-B592-BE8CE4EA356E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyborgBuilder.Robot", "CyborgBuilder.Robot\CyborgBuilder.Robot.csproj", "{7B458039-088D-493B-ACA7-02E4FBC7CF87}"
 EndProject

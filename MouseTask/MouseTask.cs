@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Xml;
-using System.Xml.Serialization;
 using System.Runtime.InteropServices;
-using CyborgBuilder.Mouse.Operations;
-using CyborgBuilder.TaskRepository;
+using CyborgBuilder.TaskRepo;
 
 
 namespace CyborgBuilder.Mouse
@@ -152,9 +147,6 @@ namespace CyborgBuilder.Mouse
             return mT;
         }
     }
-}
-namespace CyborgBuilder.Mouse.Operations
-{ 
     public static class MouseFunctions
     {
         [Flags]
@@ -224,7 +216,7 @@ namespace CyborgBuilder.Mouse.Operations
                                 SetCursorPosition((int)obj[0], (int)obj[1]);
                             });
                         }
-                    throw new Exception();    
+                    throw new Exception();
                 case 0:
                     switch (function)
                     {
@@ -388,11 +380,11 @@ namespace CyborgBuilder.Mouse.Operations
             }
             return array;
         }
-        public static T[] ResizeInitializeArray<T>(int start, int length, ref T[] array)where T: new()
+        public static T[] ResizeInitializeArray<T>(int start, int length, ref T[] array) where T : new()
         {
             Array.Resize(ref array, length);
 
-            for(int i = start; i < length; ++i)
+            for (int i = start; i < length; ++i)
             {
                 array[i] = new T();
             }
@@ -407,3 +399,4 @@ namespace CyborgBuilder.Mouse.Operations
         private static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
     }
 }
+
