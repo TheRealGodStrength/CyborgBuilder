@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,7 +17,18 @@ namespace CyborgBuilder
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            var timer = PerformanceCounter.Time();
+            Application.Run(new Form1(timer));
+
+        }
+    }
+    public static class PerformanceCounter
+    {
+        public static Stopwatch Time()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            return sw;
         }
     }
 }

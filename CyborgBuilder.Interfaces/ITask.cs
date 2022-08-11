@@ -10,6 +10,7 @@ namespace CyborgBuilder.Interfaces
         //TaskType Type { get; }
         object[] Signature { get; set; }
         int SleepTime { get; set; }
+        double Sleep { set; }
         bool UpdateOnIteration { get; set; }
         int Iterations { get; set; }
         string[] InputText { get; set; }

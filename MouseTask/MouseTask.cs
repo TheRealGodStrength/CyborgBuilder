@@ -17,7 +17,7 @@ namespace CyborgBuilder.Mouse
          * UpdateOnIteration
          
          */
-       
+       // public static event EventHandler Created;
         public new TaskType Type { get; set; }
         public int Y { get; set; }
         public int X { get; set; }
@@ -35,28 +35,79 @@ namespace CyborgBuilder.Mouse
                 return instance;
             }
         }
-        MouseTask() { Type = TaskType.Mouse; }
+
+        MouseTask() 
+        {
+            
+            Type = TaskType.Mouse;
+            //if(Created != null)
+            //{
+            //    Created(this, null);
+            //}
+        }
         public MouseFunctions.Function Function { get; set; }
         public Func<MouseFunctions.Function, object[], Action> DoWork = new Func<MouseFunctions.Function, object[], Action>(MouseFunctions.Do);
-        
-        public MouseTask(MouseFunctions.Function function, params object[] args)
+
+        private void CreateSignature()
         {
+            object[] signature = new object[6];
+            signature[0] = Type;
+            signature[1] = Function;
+            signature[2] = Y;
+            signature[3] = X;
+            signature[4] = UpdatePoints;
+            signature[5] = UpdateOnIteration;
+            Signature = signature;
+        }
+        public MouseTask(MouseFunctions.Function function)// params object[] args)
+        {
+            //if (args[0].GetType() == typeof(Point))
+            //{
+            //    var pt = (Point)args[0];
+            //    X = pt.X;
+            //    Y = pt.Y;
+            //}
             Type = TaskType.Mouse;
             Function = function;
-            ActionArguments = args;
-            UpdateOnIteration = false;
-            CreateSignature();
+            //ActionArguments = args;
+            //UpdateOnIteration = false;
+            //CreateSignature();
         }
         public MouseTask(MouseFunctions.Function function, int x, int y)
         {
             Type = TaskType.Mouse;
-            Function = function;
-            X = x;
-            Y = y;
-            ActionArguments = new object[] { x, y };
-            UpdateOnIteration = false;
-            CreateSignature();
+            object param = new object[] { function, x, y };
+            System.Threading.ThreadPool.QueueUserWorkItem(_MouseTask,param);
+            //Function = function;
+            //X = x;
+            //Y = y;
+            //ActionArguments = new object[] { x, y };
+            //UpdateOnIteration = false;
+            //CreateSignature();
         }
+        private void _MouseTask(object param)
+        {
+            var p = (object[])param;
+            Type = TaskType.Mouse;
+            Function = (MouseFunctions.Function)p[0];
+            X = (int)p[1];
+            Y = (int)p[2];
+            ActionArguments = new object[] { X, Y };
+            UpdateOnIteration = false;
+            System.Threading.ThreadPool.QueueUserWorkItem(_CreateSignature, null);
+        }
+        private void _CreateSignature(object stateInfo)
+        {
+            object[] signature = new object[6];
+            signature[0] = Type;
+            signature[1] = Function;
+            signature[2] = Y;
+            signature[3] = X;
+            signature[4] = UpdatePoints;
+            signature[5] = UpdateOnIteration;
+            Signature = signature;
+        }
+
         public MouseTask(object[] signature)
         {
             Type = TaskType.Mouse;
@@ -73,17 +124,7 @@ namespace CyborgBuilder.Mouse
                 UpdateOnIteration = true;
             }
         }
-        private void CreateSignature()
-        {
-            object[] signature = new object[6];
-            signature[0] = Type;
-            signature[1] = Function;
-            signature[2] = Y;
-            signature[3] = X;
-            signature[4] = UpdatePoints;
-            signature[5] = UpdateOnIteration;
-            Signature = signature;
-        }
+
         public new void Invoke()
         {
             if(UpdateOnIteration)
@@ -104,17 +145,17 @@ namespace CyborgBuilder.Mouse
             task.LoadFromSignature(signature);
             return task;
         }
-        public static ITask From(this ITask task, object[] signature)
-        {
-            if (signature.Length != 2) throw new Exception();
-            if (signature[0].GetType() != typeof(int)) throw new Exception();
-            if (signature[1].GetType() != typeof(object[])) throw new Exception();
-           // if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
+        //public static ITask From(this ITask task, object[] signature)
+        //{
+        //    if (signature.Length != 2) throw new Exception();
+        //    if (signature[0].GetType() != typeof(int)) throw new Exception();
+        //    if (signature[1].GetType() != typeof(object[])) throw new Exception();
+        //   // if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
 
-            task = new MouseTask((MouseFunctions.Function)signature[0], (object[])signature[1])
-                .FromSignature(signature);
-            return task;
-        }
+        //    task = new MouseTask((MouseFunctions.Function)signature[0], (object[])signature[1])
+        //        .FromSignature(signature);
+        //    return task;
+        //}
         public static MouseTask FromSignature(this MouseTask mT, object[] args)
         {
             if(args[1] != null && args[1].GetType() == typeof(int[]))
@@ -340,6 +381,7 @@ namespace CyborgBuilder.Mouse
         {
             MouseClick(value);
             MouseClick(value);
+
         }
         private static void MouseClick_Hold(MouseEventFlags value)
         {

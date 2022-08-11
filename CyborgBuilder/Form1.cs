@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
 using CyborgBuilder.Robot;
@@ -7,24 +8,41 @@ namespace CyborgBuilder
 {
     public partial class Form1 : Form
     {
+        readonly Bot Cyborg = Bot.Instance;
+        readonly Stopwatch Sw;
         public Form1()
         {
-            //Cyborg.Name = "First Bot";
+
+        }
+        public Form1(Stopwatch sw)
+        {
+                   
+            Sw = sw;
             InitializeComponent();
         }
 
-        readonly Bot Cyborg = Bot.Instance;
-        
+        void LoadProc(object stateInfo)
+        {
+            Mouse.MouseTask mT = new Mouse.MouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, 0, 0);
+           // string file = @"c:\users\djimenez\desktop\kt.xml";
+            Invoke((Action)(() =>
+            {
+                listBox1.DataSource = Cyborg.Tasks;
+            }));
+            
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
             //var kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
             //var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
             //var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
 
-            
 
-            
-            string file = @"c:\users\djimenez\desktop\kt.xml";
+            ThreadPool.QueueUserWorkItem(LoadProc, null);
+
+
+            ///LoadProc(null);
+
 
             //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 50, 50);
             //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 100, 100);
@@ -38,7 +56,7 @@ namespace CyborgBuilder
             //    Thread.Sleep(2000);
             //}
             //Thread.Sleep(2000);
-            
+
 
 
 
@@ -51,20 +69,49 @@ namespace CyborgBuilder
             //    Thread.Sleep(1500);
             //}
         }
-
+        
         private void button1_Click(object sender, EventArgs e)
         {
-            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, 0, 0);
+
+            System.Drawing.Point pt = Mouse.MouseFunctions.GetCursorPosition(Mouse.MouseFunctions.Function.GetCursorPosition);
+            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, pt.X, pt.Y)
+                .Sleep(2.0);
+            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
+            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
+                
+            
+            //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, pt.X, pt.Y);
+            
+            //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
+            
+            //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
             listBox1.DataSource = Cyborg.Tasks;
         }
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+
+        private void listBox1_MouseDown(object sender, MouseEventArgs e)
         {
             if(listBox1.SelectedIndex != -1)
             {
-                var task = (ITask)listBox1.SelectedItem;
-                task.Invoke();
+                ThreadPool.QueueUserWorkItem(ListBoxItemSelected);
             }
         }
+        void ListBoxItemSelected(object stateInfo)
+        {
+            ITask task = null;
+            Invoke((Action)(() =>
+            {
+                task = (ITask)listBox1.SelectedItem;
+            }));
+
+            if (task != null) task.Invoke();
+        }
+        private void Form1_Activated(object sender, EventArgs e)
+        {
+            Sw.Stop();
+            double t = Sw.ElapsedMilliseconds / 1000f;
+            Text = t.ToString();
+        }
     }
+
 }
