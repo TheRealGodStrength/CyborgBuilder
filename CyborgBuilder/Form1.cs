@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using CyborgBuilder.Robot;
-
+using CyborgBuilder.Interfaces;
 namespace CyborgBuilder
 {
     public partial class Form1 : Form
@@ -13,7 +13,7 @@ namespace CyborgBuilder
             InitializeComponent();
         }
 
-        //readonly Bot Cyborg = Bot.Instance;
+        readonly Bot Cyborg = Bot.Instance;
         
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -21,10 +21,8 @@ namespace CyborgBuilder
             //var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
             //var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
 
-            Bot bot = Bot.Instance;
+            
 
-            bot.Name = "Passed via interface";
-            bot.pass();
             
             string file = @"c:\users\djimenez\desktop\kt.xml";
 
@@ -52,6 +50,21 @@ namespace CyborgBuilder
             //    mT.Invoke();
             //    Thread.Sleep(1500);
             //}
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, 0, 0);
+            listBox1.DataSource = Cyborg.Tasks;
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(listBox1.SelectedIndex != -1)
+            {
+                var task = (ITask)listBox1.SelectedItem;
+                task.Invoke();
+            }
         }
     }
 }
