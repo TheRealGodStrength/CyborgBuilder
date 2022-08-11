@@ -45,6 +45,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CyborgBuilder.Interfaces\CyborgBuilder.Interfaces.csproj">
+      <Project>{c38768e1-d448-49f0-89ea-f996466a376c}</Project>
+      <Name>CyborgBuilder.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CyborgBuilder.Keyboard.Task\CyborgBuilder.Keyboard.csproj">
       <Project>{4d61d8e2-17fd-4e9c-b592-be8ce4ea356e}</Project>
       <Name>CyborgBuilder.Keyboard</Name>

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C3957655-B67E-466E-B71A-FDFAC2309299}</ProjectGuid>
+    <ProjectGuid>{C38768E1-D448-49F0-89EA-F996466A376C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ITask</RootNamespace>
-    <AssemblyName>ITask</AssemblyName>
+    <RootNamespace>CyborgBuilder.Interfaces</RootNamespace>
+    <AssemblyName>CyborgBuilder.Interfaces</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -41,15 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IBot.cs" />
+    <Compile Include="IRepository.cs" />
+    <Compile Include="ITask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Task.cs" />
-    <Compile Include="TaskRepository.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CyborgBuilder.Interfaces\CyborgBuilder.Interfaces.csproj">
-      <Project>{c38768e1-d448-49f0-89ea-f996466a376c}</Project>
-      <Name>CyborgBuilder.Interfaces</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

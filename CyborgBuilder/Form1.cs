@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Windows.Forms;
 using CyborgBuilder.Robot;
-using CyborgBuilder.TaskRepo;
 
 namespace CyborgBuilder
 {
@@ -10,17 +9,22 @@ namespace CyborgBuilder
     {
         public Form1()
         {
+            //Cyborg.Name = "First Bot";
             InitializeComponent();
         }
 
-        readonly Bot Cyborg = Bot.Instance;
+        //readonly Bot Cyborg = Bot.Instance;
+        
         private void Form1_Load(object sender, EventArgs e)
         {
             //var kT = new KeyboardTask(KeyboardFunctions.Lines.Single);
             //var kt2 = new KeyboardTask(KeyboardFunctions.Lines.Multiple);
             //var kt3 = new KeyboardTask(KeyboardFunctions.Lines.Single);
 
+            Bot bot = Bot.Instance;
 
+            bot.Name = "Passed via interface";
+            bot.pass();
             
             string file = @"c:\users\djimenez\desktop\kt.xml";
 
@@ -28,19 +32,16 @@ namespace CyborgBuilder
             //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 100, 100);
             //Cyborg.AddMouseTask(MouseFunctions.Function.SetCursorPosition, 150, 150);
 
-            Cyborg.ImportSignatureRepository(file);
+            //Cyborg.ImportSignatureRepository(file);
 
-            foreach(ITask task in Cyborg.Tasks)
-            {
-                task.Invoke();
-                Thread.Sleep(2000);
-            }
-            Thread.Sleep(2000);
+            //foreach(ITask task in Cyborg.Tasks)
+            //{
+            //    task.Invoke();
+            //    Thread.Sleep(2000);
+            //}
+            //Thread.Sleep(2000);
             
-            //repo.Add(kT);
-            //repo.Add(kt2);
-            //repo.Add(kt3);
-            //repo.Serialize(@"c:\users\djimenez\desktop\kt.xml");
+
 
 
             //KeyboardTask kT = new KeyboardTask(KeyboardFunctions.Lines.Single);

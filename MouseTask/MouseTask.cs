@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using CyborgBuilder.Interfaces;
 using CyborgBuilder.TaskRepo;
-
 
 namespace CyborgBuilder.Mouse
 {
@@ -17,8 +17,8 @@ namespace CyborgBuilder.Mouse
          * UpdateOnIteration
          
          */
-
-        public TaskType Type { get; }
+       
+        public new TaskType Type { get; set; }
         public int Y { get; set; }
         public int X { get; set; }
 
@@ -57,7 +57,7 @@ namespace CyborgBuilder.Mouse
             UpdateOnIteration = false;
             CreateSignature();
         }
-        public MouseTask(object[] signature, string st)
+        public MouseTask(object[] signature)
         {
             Type = TaskType.Mouse;
             if (signature.Length != 3) throw new Exception();
@@ -72,11 +72,6 @@ namespace CyborgBuilder.Mouse
                 UpdatePoints = (int[])signature[2];
                 UpdateOnIteration = true;
             }
-        }
-        public ITask LoadFromSignature(object[] signature)
-        {
-
-            return this.From(signature);
         }
         private void CreateSignature()
         {
@@ -190,7 +185,6 @@ namespace CyborgBuilder.Mouse
             if (function != Function.GetCursorPosition) throw new Exception();
             return GetCursorPosition();
         }
-
         public static Action Do(Function function, params object[] obj)
         {
             switch (obj.Length)
@@ -291,7 +285,6 @@ namespace CyborgBuilder.Mouse
                             {
                                 SetCursorPosition(point);
                             });
-
                     }
                     throw new Exception();
                 default: throw new Exception();

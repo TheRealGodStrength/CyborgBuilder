@@ -3,12 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-
+using CyborgBuilder.Interfaces;
 
 namespace CyborgBuilder.TaskRepo
 {  
     [XmlRoot("Repository")]
-    public class Repository
+    public class Repository : IRepository
     {
 
         [XmlArrayItem("Signatures", typeof(object[]),Form = System.Xml.Schema.XmlSchemaForm.Unqualified,IsNullable = false)]
@@ -34,20 +34,28 @@ namespace CyborgBuilder.TaskRepo
         }
         public void test()
         {
-            //CyborgBuilderB
+            
         }
         public Repository()
         {
             Signatures = Array.Empty<object[]>();
         }
-        public void Serialize(string fileName)
+        public void ExportSignatures(string fileName)
+        {
+            Serialize(fileName);
+        }
+        void Serialize(string fileName)
         {
             XmlSerializer s = new XmlSerializer(typeof(Repository));
             TextWriter tw = new StreamWriter(fileName);
             s.Serialize(tw, this);
             tw.Close();
         }
-        public static Repository DeSerialize(string fileName)
+        public static Repository ImportSignatures(string fileName)
+        {
+            return DeSerialize(fileName);
+        }
+        static Repository DeSerialize(string fileName)
         {
             FileStream fs = new FileStream(fileName, FileMode.Open);
             XmlReader reader = XmlReader.Create(fs);
@@ -57,5 +65,17 @@ namespace CyborgBuilder.TaskRepo
             return result;
         }
 
+    }
+    public static class RepositoryExtensions
+    {
+        public static Repository ImportSignatures(this Repository repo, string fileName)
+        {
+            FileStream fs = new FileStream(fileName, FileMode.Open);
+            XmlReader reader = XmlReader.Create(fs);
+
+            XmlSerializer deSerializer = new XmlSerializer(typeof(Repository));
+            repo = (Repository)deSerializer.Deserialize(reader);
+            return repo;
+        }
     }
 }

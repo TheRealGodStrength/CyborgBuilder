@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CyborgBuilder.TaskRepo
+namespace CyborgBuilder.Interfaces
 {
     public interface ITask
     {
-        TaskType Type { get; }
+        //TaskType Type { get; }
         object[] Signature { get; set; }
         int SleepTime { get; set; }
         bool UpdateOnIteration { get; set; }
@@ -18,12 +18,16 @@ namespace CyborgBuilder.TaskRepo
         void TaskFunction(object function);
         ITask LoadFromSignature(object[] signature);
     }
-public static class ITaskExt
+    public enum Lines
+    {
+        Single,
+        Multiple,
+        FromQueue
+    }
+    public static class ITaskExt
     {
         public static ITask LoadFromSignature(this ITask task, object[] signature) 
         {
-             
-
             return task;
         }
     }

@@ -1,84 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CyborgBuilder.Interfaces;
 using CyborgBuilder.Keyboard;
 using CyborgBuilder.Mouse;
 using CyborgBuilder.TaskRepo;
 
-namespace CyborgBuilder.Robot
+namespace CyborgBuilder.Automaton
 {
-    public sealed class Bot : IBot
+    public class Droid : IBot
     {
         #region Singleton Pattern
-        Bot() 
+        public Droid()
         {
             Repo = new Repository();
             Tasks = new List<ITask>();
-        } 
+        }
         public string Name { get; set; }
         private static readonly object padLock = new object();
-        private static Bot instance = null;
-        public static Bot Instance
+        private static Droid instance = null;
+        public static Droid Instance
         {
             get
             {
-                lock(padLock)
+                lock (padLock)
                 {
                     if (instance == null)
                     {
-                        instance = new Bot();
+                        instance = new Droid();
                     }
                     return instance;
                 }
             }
         }
         #endregion
-        Keyboard.KeyboardTask t = new Keyboard.KeyboardTask();
+        public Repository Repo { get; set; }
 
-        public void pass()
+        private List<ITask> tasks = new List<ITask>();
+        public List<ITask> Tasks { get; set; }
+
+        public void AddKeyboardTask(KeyboardFunctions.Lines function, bool updateOnIteration = false)
         {
-            t.KT_Test(this);
-        }
-        public IRepository Repo { get;set; }
-
-
-        public List<ITask> Tasks {get; set; }
-
-        public void AddKeyboardTask(Lines function, bool updateOnIteration = false)
-        {
-            ITask kT = new KeyboardTask(function).UpdateOnIteration(updateOnIteration);
+            KeyboardTask kT = new KeyboardTask(function).UpdateOnIteration(updateOnIteration);
             Tasks.Add(kT);
             Repo.Add(kT);
         }
         public void AddMouseTask(MouseFunctions.Function function)
         {
-            ITask mT = new MouseTask(function);
+            MouseTask mT = new MouseTask(function);
             Tasks.Add(mT);
             Repo.Add(mT);
         }
         public void AddMouseTask(MouseFunctions.Function function, int x, int y)
         {
-            ITask mT = new MouseTask(function, x, y);
+            MouseTask mT = new MouseTask(function, x, y);
             Tasks.Add(mT);
             Repo.Add(mT);
         }
         public void AddMouseTask(MouseFunctions.Function function, params object[] args)
         {
-            ITask mT = new MouseTask(function, args);
+            MouseTask mT = new MouseTask(function, args);
             Tasks.Add(mT);
             Repo.Add(mT);
         }
         public void RunAllTasks()
         {
-            foreach(var task in Tasks)
+            foreach (var task in Tasks)
             {
                 task.Invoke();
             }
         }
         public void UnloadFromRepo()
         {
-            foreach(object[] s in Repo.Signatures)
+            foreach (object[] s in Repo.Signatures)
             {
                 switch (s[0].GetType())
                 {

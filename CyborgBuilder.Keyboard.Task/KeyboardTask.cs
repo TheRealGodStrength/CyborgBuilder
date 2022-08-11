@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CyborgBuilder.TaskRepo;
+using CyborgBuilder.Interfaces;
 
 namespace CyborgBuilder.Keyboard
 {
-    public class KeyboardTask : Task, ITask
+    public class KeyboardTask : Task, ITask//, ITask
     {
         /* Signature includes
             Type
@@ -18,7 +19,13 @@ namespace CyborgBuilder.Keyboard
             UpdateOnIteration
 
          */
-        public TaskType Type { get; }
+        public void KT_Test(IBot bot)
+        {
+            MessageBox.Show(bot.Name);
+
+            //IBot bot = 
+        }
+        public new TaskType Type { get; set; }
         private static KeyboardTask instance = null;
         public static KeyboardTask Instance
         {
@@ -42,9 +49,9 @@ namespace CyborgBuilder.Keyboard
                 inputText = value;
             }
         }
-        public Func<KeyboardFunctions.Lines, string[], Action> DoWork { get; set; }//  = new Func<KeyboardFunctions.Lines, string[], Action>(KeyboardFunctions.InputText);
-        private KeyboardFunctions.Lines lines;
-        public KeyboardFunctions.Lines Lines
+        public Func<Lines, string[], Action> DoWork { get; set; }//  = new Func<Lines, string[], Action>(KeyboardFunctions.InputText);
+        private Lines lines;
+        public Lines Lines 
         {
             get
             {
@@ -53,7 +60,7 @@ namespace CyborgBuilder.Keyboard
             set
             {
                 lines = value;
-                if(Lines == KeyboardFunctions.Lines.FromQueue)
+                if(Lines == Lines.FromQueue)
                 {
                     KeyboardFunctions.Input(ref inputText);
                     foreach(string s in InputText)
@@ -71,15 +78,15 @@ namespace CyborgBuilder.Keyboard
         }
         public new void TaskFunction(object function)
         {
-            lines = (KeyboardFunctions.Lines)function;
+            lines = (Lines)function;
         }
-        public KeyboardTask(KeyboardFunctions.Lines lines)
+        public KeyboardTask(Lines lines)
         {
             Lines = lines;
             Type = TaskType.Keyboard;
             CreateSignature();
         }
-        public ITask LoadFromSignature(object[] signature)
+        public new ITask LoadFromSignature(object[] signature)
         {
             InputText = (string[])signature[1];
             return this;
@@ -98,7 +105,7 @@ namespace CyborgBuilder.Keyboard
         public new void Invoke()
         {
             Action action;
-            if (Lines == KeyboardFunctions.Lines.FromQueue && TextQueue.Count > 0)
+            if (Lines == Lines.FromQueue && TextQueue.Count > 0)
             {
                 action = new Action(delegate ()
                 {
@@ -147,12 +154,12 @@ namespace CyborgBuilder.Keyboard
             var result = InputBox(ref text);
             if (result != DialogResult.OK) return;
         }
-        public enum Lines
-        {
-            Single,
-            Multiple,
-            FromQueue
-        }
+        //public enum Lines
+        //{
+        //    Single,
+        //    Multiple,
+        //    FromQueue
+        //}
         public static Action Input()
         {
             return new Action(delegate ()
@@ -240,7 +247,7 @@ namespace CyborgBuilder.Keyboard
     {
         public static ITask LoadSignature(this ITask task, object[] signature)
         {
-            if (signature[1].GetType() != typeof(KeyboardFunctions.Lines)) throw new Exception();
+            if (signature[1].GetType() != typeof(Lines)) throw new Exception();
             task.TaskFunction(signature[1]);
             task.Iterations = (int)signature[2];
             task.InputText = (string[])signature[3];    
@@ -250,7 +257,7 @@ namespace CyborgBuilder.Keyboard
         }
         public static ITask From(this ITask task, object[] signature)
         {
-            task = new KeyboardTask((KeyboardFunctions.Lines)signature[0])
+            task = new KeyboardTask((Lines)signature[0])
                 .LoadFromSignature(signature);
             return task;
         }
