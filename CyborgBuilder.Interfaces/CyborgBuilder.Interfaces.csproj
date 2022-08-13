@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IBot.cs" />
+    <Compile Include="IMouseTask.cs" />
     <Compile Include="IRepository.cs" />
+    <Compile Include="ISignature.cs" />
     <Compile Include="ITask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

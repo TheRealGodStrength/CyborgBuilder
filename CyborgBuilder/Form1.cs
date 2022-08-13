@@ -23,12 +23,13 @@ namespace CyborgBuilder
 
         void LoadProc(object stateInfo)
         {
-            Mouse.MouseTask mT = new Mouse.MouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, 0, 0);
-           // string file = @"c:\users\djimenez\desktop\kt.xml";
-            Invoke((Action)(() =>
-            {
-                listBox1.DataSource = Cyborg.Tasks;
-            }));
+            
+           // Mouse.MouseTask mT = new Mouse.MouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, 0, 0);
+           //// string file = @"c:\users\djimenez\desktop\kt.xml";
+           // Invoke((Action)(() =>
+           // {
+           //     listBox1.DataSource = Cyborg.Tasks;
+           // }));
             
         }
         private void Form1_Load(object sender, EventArgs e)

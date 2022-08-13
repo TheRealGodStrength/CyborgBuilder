@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
 using System.Xml.Serialization;
 using CyborgBuilder.Interfaces;
-
+using System.Windows.Forms;
 namespace CyborgBuilder.TaskRepo
 {  
     [XmlRoot("Repository")]
@@ -12,48 +15,28 @@ namespace CyborgBuilder.TaskRepo
     {
 
         [XmlArrayItem("Signatures", typeof(object[]),Form = System.Xml.Schema.XmlSchemaForm.Unqualified,IsNullable = false)]
-        public object[] Signatures { get; set; }
+        public ISignature Signatures { get; set; }
 
+        public readonly List<ITask> Tasks = new List<ITask>(); 
         public void Add(ITask task)
         {
-            var count = Signatures.Count();
-            var sigs = Signatures;
-            if (count < 1)
-            {
-                Array.Resize(ref sigs, 1);
-                sigs[0] = task.Signature;
-                Signatures = sigs;
-            }
-            else
-            {
-                Array.Resize(ref sigs, count + 1);
-                sigs[count] = task.Signature;
-                Signatures = sigs;
-            }
 
         }
-        public void test()
+        public void Receive(ISignature signature, ITask task)
         {
-            
+            if(task.Type == Events.TaskType.Mouse)
+            {
+                
+            }
         }
-        public Repository()
-        {
-            Signatures = Array.Empty<object[]>();
-        }
-        public void ExportSignatures(string fileName)
-        {
-            Serialize(fileName);
-        }
+
+
         void Serialize(string fileName)
         {
             XmlSerializer s = new XmlSerializer(typeof(Repository));
             TextWriter tw = new StreamWriter(fileName);
             s.Serialize(tw, this);
             tw.Close();
-        }
-        public static Repository ImportSignatures(string fileName)
-        {
-            return DeSerialize(fileName);
         }
         static Repository DeSerialize(string fileName)
         {

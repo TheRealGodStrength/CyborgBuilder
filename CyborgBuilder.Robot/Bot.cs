@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
+using CyborgBuilder.Events;
 using CyborgBuilder.Interfaces;
 using CyborgBuilder.Keyboard;
 using CyborgBuilder.Mouse;
@@ -31,13 +34,26 @@ namespace CyborgBuilder.Robot
                 {
                     if (instance == null)
                     {
-                        instance = new Bot();
+                        instance = new Bot(); 
                     }
                     return instance;
                 }
             }
         }
         #endregion
+
+        public void AddFunctionk(Events.MouseButton.Left mouseButtonEvent)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Mouse)
+                .LeftButton(mouseButtonEvent);
+            IMouseTask task = new MouseTask()
+            {
+                Signature = signature
+            };
+
+           
+        }
 
         void CaptureNewTask(object sender, EventArgs e)
         {
@@ -57,9 +73,9 @@ namespace CyborgBuilder.Robot
 
         public void AddKeyboardTask(Lines function, bool updateOnIteration = false)
         {
-            ITask kT = new KeyboardTask(function).UpdateOnIteration(updateOnIteration);
-            Tasks.Add(kT);
-            Repo.Add(kT);
+            //ITask kT = new KeyboardTask(function).UpdateOnIteration(updateOnIteration);
+            //Tasks.Add(kT);
+            //Repo.Add(kT);
         }
         //public void AddMouseTask(MouseFunctions.Function function)
         //{
@@ -87,16 +103,7 @@ namespace CyborgBuilder.Robot
                 task.Invoke();
             }
         }
-        public void UnloadFromRepo()
-        {
-            foreach(object[] s in Repo.Signatures)
-            {
-                switch (s[0].GetType())
-                {
-
-                }
-            }
-        }
+   
         public static T[] ResizeInitializeArray<T>(int start, int length, ref T[] array) where T : new()
         {
             var count = array.Count();
@@ -126,21 +133,8 @@ namespace CyborgBuilder.Robot
             bot.SleepTime = inSeconds;
             return bot;
         }
-        public static Bot AddMouseTask(this Bot bot, MouseFunctions.Function function, int x, int y)
-        {
-            ITask mT = new MouseTask(function, x, y).SleepTime(bot.SleepTime);
-            bot.Tasks.Add(mT);
-            bot.Repo.Add(mT);
-            bot.SleepTime = 0;
-            return bot;
-        }
-        public static Bot AddMouseTask(this Bot bot, MouseFunctions.Function function)
-        {
-            ITask mT = new MouseTask(function);
-            bot.Tasks.Add(mT);
-            bot.Repo.Add(mT);
-            return bot;
-        }
+
+
         public static Bot Sleep(this Bot bot, double inSeconds)
         {
             ITask task = bot.Tasks.Last();

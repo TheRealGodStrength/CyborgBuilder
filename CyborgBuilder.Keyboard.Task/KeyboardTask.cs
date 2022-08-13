@@ -25,7 +25,7 @@ namespace CyborgBuilder.Keyboard
 
             //IBot bot = 
         }
-        public new TaskType Type { get; set; }
+        public new Events.TaskType Type { get; set; }
         private static KeyboardTask instance = null;
         public static KeyboardTask Instance
         {
@@ -80,28 +80,18 @@ namespace CyborgBuilder.Keyboard
         {
             lines = (Lines)function;
         }
-        public KeyboardTask(Lines lines)
-        {
-            Lines = lines;
-            Type = TaskType.Keyboard;
-            CreateSignature();
-        }
+        //public KeyboardTask(Lines lines)
+        //{
+        //    Lines = lines;
+        //    Type = TaskType.Keyboard;
+        //    CreateSignature();
+        //}
         public new ITask LoadFromSignature(object[] signature)
         {
             InputText = (string[])signature[1];
             return this;
         }
-        public KeyboardTask() { Type = TaskType.Keyboard; }
-        private void CreateSignature()
-        {
-            object[] signature = new object[5];
-            signature[0] = Type;
-            signature[1] = Lines;
-            signature[2] = Iterations;
-            signature[3] = InputText;
-            signature[4] = UpdateOnIteration;
-            Signature = signature;
-        }
+
         public new void Invoke()
         {
             Action action;
@@ -255,12 +245,7 @@ namespace CyborgBuilder.Keyboard
             
             return task;
         }
-        public static ITask From(this ITask task, object[] signature)
-        {
-            task = new KeyboardTask((Lines)signature[0])
-                .LoadFromSignature(signature);
-            return task;
-        }
+
         public static KeyboardTask SleepTime(this KeyboardTask kT, double inSeconds)
         {
             float m = (float)inSeconds * 1000;

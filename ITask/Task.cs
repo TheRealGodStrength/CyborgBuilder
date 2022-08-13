@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
-
+using CyborgBuilder.Events;
 using CyborgBuilder.Interfaces;
 
 namespace CyborgBuilder.TaskRepo
@@ -14,8 +14,8 @@ namespace CyborgBuilder.TaskRepo
     public class Task : ITask
     {
         public static event EventHandler Created;
-        public TaskType Type { get; }
-        public object[] Signature { get; set; }
+        public Events.TaskType Type { get; }
+        public ISignature Signature { get; set; }
         public int SleepTime { get; set; }
         public double Sleep
         {
@@ -28,6 +28,14 @@ namespace CyborgBuilder.TaskRepo
         public object[] ActionArguments { get; set; }
         public int Iterations { get; set; }
         public string[] InputText { get; set; }
+        public int X { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int Y { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int[] UpdatePoints { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public MouseButton.Left LeftButton { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public MouseButton.Middle MiddleButton { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public MouseButton.Right RightButton { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public MouseCursor MouseCursor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public void TaskFunction(object function) { }
         public Task()
         {

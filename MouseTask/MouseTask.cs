@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using CyborgBuilder.Events;
 using CyborgBuilder.Interfaces;
 using CyborgBuilder.TaskRepo;
 
 namespace CyborgBuilder.Mouse
 {
-    public class MouseTask : Task, ITask
+    public class MouseTask : Task, ITask, IMouseTask
     {
-        /* Signature includes
-         * Type
-         * MouseFunction
-         * Y
-         * X
-         * UpdatePoints
-         * UpdateOnIteration
-         
-         */
-       // public static event EventHandler Created;
-        public new TaskType Type { get; set; }
-        public int Y { get; set; }
-        public int X { get; set; }
+        public new Events.TaskType Type { get; set; }
+        public new ISignature Signature { get; set; }
 
-        public int[] UpdatePoints = new int[2] { 0, 0 };
         private static MouseTask instance = null;
         public static MouseTask Instance
         {
@@ -35,106 +24,20 @@ namespace CyborgBuilder.Mouse
                 return instance;
             }
         }
+        public MouseTask()
+        {
 
-        MouseTask() 
-        {
-            
-            Type = TaskType.Mouse;
-            //if(Created != null)
-            //{
-            //    Created(this, null);
-            //}
         }
-        public MouseFunctions.Function Function { get; set; }
-        public Func<MouseFunctions.Function, object[], Action> DoWork = new Func<MouseFunctions.Function, object[], Action>(MouseFunctions.Do);
-
-        private void CreateSignature()
-        {
-            object[] signature = new object[6];
-            signature[0] = Type;
-            signature[1] = Function;
-            signature[2] = Y;
-            signature[3] = X;
-            signature[4] = UpdatePoints;
-            signature[5] = UpdateOnIteration;
-            Signature = signature;
-        }
-        public MouseTask(MouseFunctions.Function function)// params object[] args)
-        {
-            //if (args[0].GetType() == typeof(Point))
-            //{
-            //    var pt = (Point)args[0];
-            //    X = pt.X;
-            //    Y = pt.Y;
-            //}
-            Type = TaskType.Mouse;
-            Function = function;
-            //ActionArguments = args;
-            //UpdateOnIteration = false;
-            //CreateSignature();
-        }
-        public MouseTask(MouseFunctions.Function function, int x, int y)
-        {
-            Type = TaskType.Mouse;
-            object param = new object[] { function, x, y };
-            System.Threading.ThreadPool.QueueUserWorkItem(_MouseTask,param);
-            //Function = function;
-            //X = x;
-            //Y = y;
-            //ActionArguments = new object[] { x, y };
-            //UpdateOnIteration = false;
-            //CreateSignature();
-        }
-        private void _MouseTask(object param)
-        {
-            var p = (object[])param;
-            Type = TaskType.Mouse;
-            Function = (MouseFunctions.Function)p[0];
-            X = (int)p[1];
-            Y = (int)p[2];
-            ActionArguments = new object[] { X, Y };
-            UpdateOnIteration = false;
-            System.Threading.ThreadPool.QueueUserWorkItem(_CreateSignature, null);
-        }
-        private void _CreateSignature(object stateInfo)
-        {
-            object[] signature = new object[6];
-            signature[0] = Type;
-            signature[1] = Function;
-            signature[2] = Y;
-            signature[3] = X;
-            signature[4] = UpdatePoints;
-            signature[5] = UpdateOnIteration;
-            Signature = signature;
-        }
-
-        public MouseTask(object[] signature)
-        {
-            Type = TaskType.Mouse;
-            if (signature.Length != 3) throw new Exception();
-            if (signature[0].GetType() != typeof(MouseFunctions.Function)) throw new Exception();
-            if (signature[1].GetType() != typeof(object[])) throw new Exception();
-            if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
-
-            Function = (MouseFunctions.Function)signature[0];
-            ActionArguments = (object[])signature[1];
-            if (signature[2] != null && signature[2].GetType() == typeof(int[]))
-            {
-                UpdatePoints = (int[])signature[2];
-                UpdateOnIteration = true;
-            }
-        }
-
         public new void Invoke()
         {
-            if(UpdateOnIteration)
+            if (UpdateOnIteration)
             {
                 X += UpdatePoints[0];
                 Y += UpdatePoints[1];
                 ActionArguments = new object[] { X, Y };
             }
-            var action = DoWork(Function, ActionArguments);
-            action.Invoke();
+            //var action = DoWork(Function, ActionArguments);
+           // action.Invoke();
             if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
         }
     }
@@ -145,20 +48,9 @@ namespace CyborgBuilder.Mouse
             task.LoadFromSignature(signature);
             return task;
         }
-        //public static ITask From(this ITask task, object[] signature)
-        //{
-        //    if (signature.Length != 2) throw new Exception();
-        //    if (signature[0].GetType() != typeof(int)) throw new Exception();
-        //    if (signature[1].GetType() != typeof(object[])) throw new Exception();
-        //   // if (signature[2].GetType() != typeof(object[]) && signature[2] != null) throw new Exception();
-
-        //    task = new MouseTask((MouseFunctions.Function)signature[0], (object[])signature[1])
-        //        .FromSignature(signature);
-        //    return task;
-        //}
         public static MouseTask FromSignature(this MouseTask mT, object[] args)
         {
-            if(args[1] != null && args[1].GetType() == typeof(int[]))
+            if (args[1] != null && args[1].GetType() == typeof(int[]))
             {
                 mT.UpdatePoints = (int[])args[1];
                 mT.UpdateOnIteration = true;
@@ -185,171 +77,123 @@ namespace CyborgBuilder.Mouse
     }
     public static class MouseFunctions
     {
-        [Flags]
-        public enum MouseEventFlags
+        public static Action Do(Events.MouseButton.Left leftButton)
         {
-            LeftDown = 0x00000002,
-            LeftUp = 0x00000004,
-            MiddleDown = 0x00000020,
-            MiddleUp = 0x00000040,
-            Move = 0x00000001,
-            Absolute = 0x00008000,
-            RightDown = 0x0000008,
-            RightUp = 0x00000010
-        }
-        [Flags]
-        public enum MouseButtons
-        {
-            Left = MouseEventFlags.LeftDown,
-            Middle = MouseEventFlags.MiddleDown,
-            Right = MouseEventFlags.RightDown
-        }
-        public enum Function
-        {
-            Left_Click,
-            Middle_Click,
-            Right_Click,
-            Left_ClickHold,
-            Middle_ClickHold,
-            Right_ClickHold,
-            Left_ClickRelease,
-            Middle_ClickRelease,
-            Right_ClickRelease,
-            Left_DoubleClick,
-            Middle_DoubleClick,
-            Right_DoubleClick,
-            SetCursorPosition,
-            GetCursorPosition
-        }
-        public static Point GetCursorPosition(this Function function)
-        {
-            if (function != Function.GetCursorPosition) throw new Exception();
-            return GetCursorPosition();
-        }
-        public static Action Do(Function function, params object[] obj)
-        {
-            switch (obj.Length)
+            switch (leftButton)
             {
-                case 1:
-                    if (function != Function.SetCursorPosition) throw new Exception();
-                    if (obj[0].GetType() == typeof(Point))
+                case MouseButton.Left.Click:
+                    return new Action(delegate ()
                     {
-                        var pt = (Point)obj[0];
-                        return new Action(delegate ()
-                        {
-                            SetCursorPosition(pt);
-                        });
-                    }
-                    throw new Exception();
-                case 2:
-                    if (function != Function.SetCursorPosition) throw new Exception();
-                    if (obj[0].GetType() == typeof(int))
-                        if (obj[0].GetType() == obj[1].GetType())
-                        {
-                            return new Action(delegate ()
-                            {
-                                SetCursorPosition((int)obj[0], (int)obj[1]);
-                            });
-                        }
-                    throw new Exception();
-                case 0:
-                    switch (function)
+                        MouseClick(MouseEventFlags.LeftDown);
+                    });
+                case MouseButton.Left.DoubleClick:
+                    return new Action(delegate ()
                     {
-                        case Function.Left_Click:
-                            return new Action(delegate ()
-                            {
-                                MouseClick(MouseEventFlags.LeftDown);
-                            });
-                        case Function.Middle_Click:
-                            return new Action(delegate ()
-                            {
-                                MouseClick(MouseEventFlags.MiddleDown);
-                            });
-                        case Function.Right_Click:
-                            return new Action(delegate ()
-                            {
-                                MouseClick(MouseEventFlags.RightDown);
-                            });
-                        case Function.Left_ClickHold:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Hold(MouseEventFlags.LeftDown);
-                            });
-                        case Function.Middle_ClickHold:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Hold(MouseEventFlags.MiddleDown);
-                            });
-                        case Function.Right_ClickHold:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Hold(MouseEventFlags.RightDown);
-                            });
-                        case Function.Left_ClickRelease:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Release(MouseEventFlags.LeftUp);
-                            });
-                        case Function.Middle_ClickRelease:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Release(MouseEventFlags.MiddleUp);
-                            });
-                        case Function.Right_ClickRelease:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Release(MouseEventFlags.RightUp);
-                            });
-                        case Function.Left_DoubleClick:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Double(MouseEventFlags.LeftDown);
-                            });
-                        case Function.Middle_DoubleClick:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Double(MouseEventFlags.MiddleDown);
-                            });
-                        case Function.Right_DoubleClick:
-                            return new Action(delegate ()
-                            {
-                                MouseClick_Double(MouseEventFlags.RightDown);
-                            });
-                        case Function.GetCursorPosition:
-                            return new Action(delegate ()
-                            {
-                                GetCursorPosition();
-                            });
-                        case Function.SetCursorPosition:
-                            var point = GetCursorPosition();
-                            return new Action(delegate ()
-                            {
-                                SetCursorPosition(point);
-                            });
-                    }
-                    throw new Exception();
-                default: throw new Exception();
+                        MouseClick_Double(MouseEventFlags.LeftDown);
+                    });
+                case MouseButton.Left.Down:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Hold(MouseEventFlags.LeftDown);
+                    });
+                case MouseButton.Left.Up:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Release(MouseEventFlags.LeftUp);
+                    });
             }
             throw new Exception();
         }
-        public static Action Do(this Function function, Point point)
+        public static Action Do(MouseButton.Middle middleButton)
         {
-            if (function != Function.SetCursorPosition) throw new Exception();
-            var action = Do(function, point);
-            return action;
+            switch (middleButton)
+            {
+                case MouseButton.Middle.Click:
+                    return new Action(delegate ()
+                    {
+                        MouseClick(MouseEventFlags.MiddleDown);
+                    });
+                case MouseButton.Middle.DoubleClick:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Double(MouseEventFlags.MiddleDown);
+                    });
+                case MouseButton.Middle.Down:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Hold(MouseEventFlags.MiddleDown);
+                    });
+                case MouseButton.Middle.Up:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Release(MouseEventFlags.MiddleUp);
+                    });
+            }
+            throw new Exception();
         }
-        public static Action Do(this Function function, int x, int y)
+        public static Action Do(MouseButton.Right rightButton)
         {
-            if (function != Function.SetCursorPosition) throw new Exception();
-            var action = Do(function, x, y);
-            return action;
+            switch (rightButton)
+            {
+                case MouseButton.Right.Click:
+                    return new Action(delegate ()
+                    {
+                        MouseClick(MouseEventFlags.RightDown);
+                    });
+                case MouseButton.Right.DoubleClick:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Double(MouseEventFlags.RightDown);
+                    });
+                case MouseButton.Right.Down:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Hold(MouseEventFlags.RightDown);
+                    });
+                case MouseButton.Right.Up:
+                    return new Action(delegate ()
+                    {
+                        MouseClick_Release(MouseEventFlags.RightUp);
+                    });
+            }
+            throw new Exception();
         }
-        public static Action Do(this Function function)
+        public static Action Do(MouseCursor mouseCursor)
         {
-            object[] none = Array.Empty<object>();
-            var action = Do(function, none);
-            return action;
+            switch(mouseCursor)
+            {
+                case MouseCursor.Get:
+                    return new Action(delegate ()
+                    {
+                        GetCursorPosition();
+                    });
+                case MouseCursor.Set:
+                    var point = GetCursorPosition();
+                    return new Action(delegate ()
+                    {
+                        SetCursorPosition(point);
+                    });
+                default: throw new Exception();
+            }
         }
+        public static Action Do(MouseCursor mouseCursor, int x, int y)
+        {
+            if(mouseCursor != MouseCursor.Set) throw new Exception();
+            return new Action(delegate ()
+            {
+                SetCursorPosition(x, y);
+            });
+        }
+        public static Action Do(MouseCursor mouseCursor, Point point)
+        {
+            if (mouseCursor != MouseCursor.Set) throw new Exception();
+            return new Action(delegate ()
+            {
+                SetCursorPosition(point);
+            });
+        }
+
+
         private static Point GetCursorPosition()
         {
             GetCursorPos(out Point lpPoint);
@@ -405,6 +249,47 @@ namespace CyborgBuilder.Mouse
                 point.Y,
                 0,
                 0);
+        }
+        [Flags]
+        public enum MouseEventFlags
+        {
+            LeftDown = 0x00000002,
+            LeftUp = 0x00000004,
+            MiddleDown = 0x00000020,
+            MiddleUp = 0x00000040,
+            Move = 0x00000001,
+            Absolute = 0x00008000,
+            RightDown = 0x0000008,
+            RightUp = 0x00000010
+        }
+        [Flags]
+        public enum MouseButtons
+        {
+            Left = MouseEventFlags.LeftDown,
+            Middle = MouseEventFlags.MiddleDown,
+            Right = MouseEventFlags.RightDown
+        }
+        public enum Function
+        {
+            Left_Click,
+            Middle_Click,
+            Right_Click,
+            Left_ClickHold,
+            Middle_ClickHold,
+            Right_ClickHold,
+            Left_ClickRelease,
+            Middle_ClickRelease,
+            Right_ClickRelease,
+            Left_DoubleClick,
+            Middle_DoubleClick,
+            Right_DoubleClick,
+            SetCursorPosition,
+            GetCursorPosition
+        }
+        public static Point GetCursorPosition(this Function function)
+        {
+            if (function != Function.GetCursorPosition) throw new Exception();
+            return GetCursorPosition();
         }
         public static T[] InitializeArray<T>(int length) where T : new()
         {

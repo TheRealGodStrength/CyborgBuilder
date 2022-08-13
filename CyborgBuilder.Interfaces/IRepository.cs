@@ -8,9 +8,8 @@ namespace CyborgBuilder.Interfaces
 {
     public interface IRepository
     {
-        object[] Signatures { get; set; }
+        ISignature Signatures { get; set; }
         void Add(ITask task);
-        void ExportSignatures(string fileName);
-        
+        void Receive(ISignature signature, ITask task);
     }
 }
