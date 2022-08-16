@@ -7,7 +7,7 @@ using CyborgBuilder.Events;
 
 namespace CyborgBuilder.Interfaces
 {
-    public interface IMouseTask 
+    public interface IMouseTask : ITask
     {
         int X { get; set; }
         int Y { get; set; }

@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Threading.Tasks;
 using CyborgBuilder.Events;
 using CyborgBuilder.Interfaces;
-using CyborgBuilder.Keyboard;
-using CyborgBuilder.Mouse;
 using CyborgBuilder.TaskRepo;
 
 namespace CyborgBuilder.Robot
@@ -41,18 +35,33 @@ namespace CyborgBuilder.Robot
             }
         }
         #endregion
-
-        public void AddFunctionk(Events.MouseButton.Left mouseButtonEvent)
+        public void AddFunction(Keyboard.Typing typing)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Keyboard)
+                .Typing(typing);
+            Repo.Receive(signature);
+        }
+        public void AddFunctionk(MouseButton.Left mouseButtonEvent)
         {
             ISignature signature = new Signature()
                 .Type(Events.TaskType.Mouse)
                 .LeftButton(mouseButtonEvent);
-            IMouseTask task = new MouseTask()
-            {
-                Signature = signature
-            };
-
-           
+            Repo.Receive(signature);  
+        }
+        public void AddFunction(MouseButton.Middle mouseButtonEvent)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Mouse)
+                .MiddleButton(mouseButtonEvent);
+            Repo.Receive(signature);
+        }
+        public void AddFunction(MouseButton.Right mouseButtonEvent)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Mouse)
+                .RightButton(mouseButtonEvent);
+            Repo.Receive(signature);
         }
 
         void CaptureNewTask(object sender, EventArgs e)

@@ -9,7 +9,8 @@ namespace CyborgBuilder.Interfaces
     public interface IRepository
     {
         ISignature Signatures { get; set; }
+        List<ITask> Tasks { get; set; }
         void Add(ITask task);
-        void Receive(ISignature signature, ITask task);
+        void Receive(ISignature signature);
     }
 }

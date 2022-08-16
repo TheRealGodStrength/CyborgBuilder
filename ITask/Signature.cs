@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using CyborgBuilder.Events;
 using CyborgBuilder.Interfaces;
 
@@ -11,7 +14,7 @@ namespace CyborgBuilder.TaskRepo
     public class Signature : ISignature
     {
         public Events.TaskType Type { get; set; }
-        public Keyboard.Typing Typing { get; set; }
+        public Events.Keyboard.Typing Typing { get; set; }
         public Queue<string> TextQueue { get;set; }
         public MouseButton.Left LeftButton { get; set; }
         public MouseButton.Middle MiddleButton { get; set; }
@@ -25,6 +28,37 @@ namespace CyborgBuilder.TaskRepo
         {
 
         }
+        public void GetPropertyValues(Object obj)
+        {
+            Type t = obj.GetType();
+            PropertyInfo[] props = t.GetProperties();
+            var type =  from PropertyInfo p in props
+                       where p.Name == "Type"
+                       select p;
+
+            MessageBox.Show(type.First().Name);
+
+            foreach(var prop in props)
+            {
+                try
+                {
+                   
+                    if (prop.GetIndexParameters().Length == 0)
+                    {
+                        MessageBox.Show("1: " + prop.Name + " " + prop.PropertyType.ToString() + " " + prop.GetValue(obj).ToString());
+                    }
+                    else
+                    {
+                        MessageBox.Show("2: " + prop.Name + " " + prop.GetType().ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    continue;
+                }
+            }
+        }
     }
     public static class SignatureExtensions
     {
@@ -33,7 +67,7 @@ namespace CyborgBuilder.TaskRepo
             sig.Type = taskType;
             return sig;
         }
-        public static Signature Typing(this Signature sig, Keyboard.Typing typing)
+        public static Signature Typing(this Signature sig, Events.Keyboard.Typing typing)
         {
             sig.Typing = typing;
             return sig;

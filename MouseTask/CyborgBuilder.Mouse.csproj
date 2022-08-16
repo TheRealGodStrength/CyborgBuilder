@@ -50,10 +50,6 @@
       <Project>{c38768e1-d448-49f0-89ea-f996466a376c}</Project>
       <Name>CyborgBuilder.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ITask\CyborgBuilder.TaskRepo.csproj">
-      <Project>{c3957655-b67e-466e-b71a-fdfac2309299}</Project>
-      <Name>CyborgBuilder.TaskRepo</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

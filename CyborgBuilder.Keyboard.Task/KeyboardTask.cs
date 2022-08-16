@@ -4,34 +4,20 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using CyborgBuilder.TaskRepo;
+
 using CyborgBuilder.Interfaces;
 
 namespace CyborgBuilder.Keyboard
 {
-    public class KeyboardTask : Task, ITask//, ITask
+    public class KeyboardTask : ITask
     {
-        /* Signature includes
-            Type
-            KeyboardFunction
-            Iterations
-            inputText
-            UpdateOnIteration
-
-         */
-        public void KT_Test(IBot bot)
-        {
-            MessageBox.Show(bot.Name);
-
-            //IBot bot = 
-        }
-        public new Events.TaskType Type { get; set; }
+        public Events.TaskType Type { get; set; }
         private static KeyboardTask instance = null;
         public static KeyboardTask Instance
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     instance = new KeyboardTask();
                 }
@@ -39,63 +25,60 @@ namespace CyborgBuilder.Keyboard
             }
         }
         public Queue<string> TextQueue { get; set; }
-        private string[] inputText = Array.Empty<string>();
-        public new string[] InputText
-        {
-            get { return inputText; }
-
-            set
-            {
-                inputText = value;
-            }
-        }
-        public Func<Lines, string[], Action> DoWork { get; set; }//  = new Func<Lines, string[], Action>(KeyboardFunctions.InputText);
-        private Lines lines;
-        public Lines Lines 
+        public string Text { get; set; }
+        public Func<string, Action> DoWork { get; set; }//  = new Func<Lines, string[], Action>(KeyboardFunctions.InputText);
+        private Events.Keyboard.Typing typing;
+        public Events.Keyboard.Typing Typing
         {
             get
             {
-                return lines;
+                return typing;
             }
             set
             {
-                lines = value;
-                if(Lines == Lines.FromQueue)
+                typing = value;
+                string[] inputText = Array.Empty<string>();
+                if (Typing == Events.Keyboard.Typing.FromQueue)
                 {
-                    KeyboardFunctions.Input(ref inputText);
-                    foreach(string s in InputText)
+                    Input(ref inputText);
+                    foreach (string s in InputText)
                     {
                         TextQueue.Enqueue(s);
                     }
                     var result = MessageBox.Show("Do you want to set the iteration count relative to the queue?", "Update Iteration", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if(result == DialogResult.Yes) { Iterations = TextQueue.Count; }                
+                    if (result == DialogResult.Yes) { Iterations = TextQueue.Count; }
                 }
                 else
                 {
-                    KeyboardFunctions.Input(ref inputText);
+                    Input(ref inputText);
+                    Text = inputText[0];
+                    DoWork = new Func<string, Action>(SinglePhrase);
                 }
             }
         }
-        public new void TaskFunction(object function)
-        {
-            lines = (Lines)function;
-        }
-        //public KeyboardTask(Lines lines)
-        //{
-        //    Lines = lines;
-        //    Type = TaskType.Keyboard;
-        //    CreateSignature();
-        //}
-        public new ITask LoadFromSignature(object[] signature)
-        {
-            InputText = (string[])signature[1];
-            return this;
-        }
 
-        public new void Invoke()
+        public int SleepTime { get { return (int)sleep; } }
+        private double sleep;
+        public double Sleep
+        {
+            get
+            {
+                return sleep;
+            }
+            set
+            {
+                float millisec = (float)value * 1000;
+                sleep = millisec;
+            }
+        }
+        public bool UpdateOnIteration { get; set; }
+        public int Iterations { get; set; }
+        public string[] InputText { get; set; }
+
+        public void Invoke()
         {
             Action action;
-            if (Lines == Lines.FromQueue && TextQueue.Count > 0)
+            if (Typing == Events.Keyboard.Typing.FromQueue && TextQueue.Count > 0)
             {
                 action = new Action(delegate ()
                 {
@@ -104,63 +87,27 @@ namespace CyborgBuilder.Keyboard
                 });
                 action.Invoke();
             }
-            else
+            else if (Typing == Events.Keyboard.Typing.Single)
             {
-                action = DoWork(Lines, InputText);
+                action = DoWork(Text);
                 action.Invoke();
             }
             if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
         }
-    }
-    public static class KeyboardFunctions
-    {
-        public static Action InputText(this Lines lines, string[] text)
+        private static Action SinglePhrase(string text)
         {
-
-            switch (lines)
+            return new Action(delegate ()
             {
-                case Lines.Single:
-                    return new Action(delegate ()
-                    {
-                        Clipboard.SetText(text[0]);
-                        SendKeys.Send("^(v)");
-                    });
-                case Lines.Multiple:
-                    var sb = new StringBuilder();
-                    foreach (string s in text)
-                    {
-                        sb.Append(s);
-                    }
-                    return new Action(delegate ()
-                    {
-                        Clipboard.SetText(sb.ToString());
-                        SendKeys.Send("^(v)");
-                    });
-            }
-            throw new Exception();
+                Clipboard.SetText(text);
+                SendKeys.Send("^(v)");
+            });
         }
-        public static void Input(ref string[] text)
+        private static void Input(ref string[] text)
         {
             var result = InputBox(ref text);
             if (result != DialogResult.OK) return;
         }
-        //public enum Lines
-        //{
-        //    Single,
-        //    Multiple,
-        //    FromQueue
-        //}
-        public static Action Input()
-        {
-            return new Action(delegate ()
-            {
-                string[] text = new string[1];
-                var result = InputBox(ref text);
-                if (result != DialogResult.OK) return;
-                SendKeys.Send(text[0]);
-            });
-        }
-        public static DialogResult InputBox(ref string[] input)
+        private static DialogResult InputBox(ref string[] input)
         {
             TextBox textBox = new TextBox()
             {
@@ -223,7 +170,6 @@ namespace CyborgBuilder.Keyboard
                 }
             });
 
-
             DialogResult dialogResult = form.ShowDialog();
 
             int totalLines = textBox.Lines.Where(line => !string.IsNullOrWhiteSpace(line)).Count();
@@ -231,32 +177,6 @@ namespace CyborgBuilder.Keyboard
             Array.Resize(ref input, textBox.Lines.Where(line => !string.IsNullOrWhiteSpace(line)).Count());
             input = textBox.Lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
             return dialogResult;
-        }
-    }
-    public static class KeyboardTaskExt
-    {
-        public static ITask LoadSignature(this ITask task, object[] signature)
-        {
-            if (signature[1].GetType() != typeof(Lines)) throw new Exception();
-            task.TaskFunction(signature[1]);
-            task.Iterations = (int)signature[2];
-            task.InputText = (string[])signature[3];    
-            task.UpdateOnIteration = (bool)signature[4];
-            
-            return task;
-        }
-
-        public static KeyboardTask SleepTime(this KeyboardTask kT, double inSeconds)
-        {
-            float m = (float)inSeconds * 1000;
-            kT.SleepTime = (int)m;
-
-            return kT;
-        }
-        public static KeyboardTask UpdateOnIteration(this KeyboardTask kT, bool updateOnIteration)
-        {
-            kT.UpdateOnIteration = updateOnIteration;
-            return kT;
         }
     }
 }

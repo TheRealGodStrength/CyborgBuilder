@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Drawing;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using CyborgBuilder.Events;
 using CyborgBuilder.Interfaces;
-using CyborgBuilder.TaskRepo;
 
 namespace CyborgBuilder.Mouse
 {
-    public class MouseTask : Task, ITask, IMouseTask
+    public class MouseTask : ITask, IMouseTask
     {
         public new Events.TaskType Type { get; set; }
         public new ISignature Signature { get; set; }
@@ -24,21 +24,40 @@ namespace CyborgBuilder.Mouse
                 return instance;
             }
         }
+
+        public int SleepTime { get; set; }
+        public double Sleep { get; set; }
+        public bool UpdateOnIteration { get; set; }
+        public int Iterations { get; set; }
+        public string[] InputText { get; set; }
+        public object[] ActionArguments { get; set; }
+        public int X { get;set; }
+        public int Y { get;set; }
+        public int[] UpdatePoints { get;set; }
+        public MouseButton.Left LeftButton { get;set; }
+        public MouseButton.Middle MiddleButton { get;set; }
+        public MouseButton.Right RightButton { get;set; }
+        public MouseCursor MouseCursor { get;set; }
+
         public MouseTask()
         {
 
         }
-        public new void Invoke()
+        public void Invoke()
         {
             if (UpdateOnIteration)
             {
                 X += UpdatePoints[0];
                 Y += UpdatePoints[1];
-                ActionArguments = new object[] { X, Y };
             }
             //var action = DoWork(Function, ActionArguments);
            // action.Invoke();
             if (SleepTime > 0) System.Threading.Thread.Sleep(SleepTime);
+        }
+
+        public void TaskFunction(object function)
+        {
+            throw new NotImplementedException();
         }
     }
     public static class MouseTaskExt

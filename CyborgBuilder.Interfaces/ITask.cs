@@ -6,17 +6,15 @@ using CyborgBuilder.Events;
 
 namespace CyborgBuilder.Interfaces
 {
-    public interface ITask : IMouseTask
+    public interface ITask 
     {
         TaskType Type { get; }
-        int SleepTime { get; set; }
+        int SleepTime { get; }
         double Sleep { set; }
         bool UpdateOnIteration { get; set; }
         int Iterations { get; set; }
         string[] InputText { get; set; }
-        object[] ActionArguments { get; set; }
         void Invoke();
-        void TaskFunction(object function);
 
     }
 
@@ -39,36 +37,40 @@ namespace CyborgBuilder.Events
     public enum TaskType
     {
         Keyboard,
-        Mouse
+        Mouse,
     }
     public class MouseButton
     {
         public enum Left
         {
+            None,
             Click,
             DoubleClick,
             Down,
-            Up
+            Up,
         }
         public enum Middle
-        {
+        {   
+            None,
             Click,
             DoubleClick,
             Down,
-            Up
+            Up,
         }
         public enum Right
         {
+            None,
             Click,
             DoubleClick,
             Down,
-            Up
+            Up,
         }
     }
     public enum MouseCursor
     {
+        None,
         Get,
-        Set
+        Set,
     }
     public static class Keyboard
     {

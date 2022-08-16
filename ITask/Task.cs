@@ -11,7 +11,7 @@ using CyborgBuilder.Interfaces;
 
 namespace CyborgBuilder.TaskRepo
 {
-    public class Task : ITask
+    public  class Task : ITask, IMouseTask
     {
         public static event EventHandler Created;
         public Events.TaskType Type { get; }
@@ -39,10 +39,7 @@ namespace CyborgBuilder.TaskRepo
         public void TaskFunction(object function) { }
         public Task()
         {
-            if(Created != null)
-            {
-                Created(this, null);
-            }
+            Created?.Invoke(this, null);
         }
         public void Invoke()
         {

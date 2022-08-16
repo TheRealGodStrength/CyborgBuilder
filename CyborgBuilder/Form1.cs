@@ -8,7 +8,7 @@ namespace CyborgBuilder
 {
     public partial class Form1 : Form
     {
-        readonly Bot Cyborg = Bot.Instance;
+        readonly Bot bot = Bot.Instance;
         readonly Stopwatch Sw;
         public Form1()
         {
@@ -73,12 +73,6 @@ namespace CyborgBuilder
         
         private void button1_Click(object sender, EventArgs e)
         {
-
-            System.Drawing.Point pt = Mouse.MouseFunctions.GetCursorPosition(Mouse.MouseFunctions.Function.GetCursorPosition);
-            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, pt.X, pt.Y)
-                .Sleep(2.0);
-            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
-            Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
                 
             
             //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, pt.X, pt.Y);
@@ -86,7 +80,7 @@ namespace CyborgBuilder
             //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
             
             //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
-            listBox1.DataSource = Cyborg.Tasks;
+            
         }
 
 
@@ -113,6 +107,22 @@ namespace CyborgBuilder
             double t = Sw.ElapsedMilliseconds / 1000f;
             Text = t.ToString();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            ISignature sig = new CyborgBuilder.TaskRepo.Signature()
+            {
+                LeftButton = CyborgBuilder.Events.MouseButton.Left.Down,
+                TextQueue = new System.Collections.Generic.Queue<string>(),
+                Type = CyborgBuilder.Events.TaskType.Mouse,
+                X = 5,
+                Y = 5
+            };
+
+            bot.AddFunction(CyborgBuilder.Events.Keyboard.Typing.Single);
+            bot.Repo.Tasks[0].Invoke();
+            //sig.GetPropertyValues(sig);
+        }   
     }
 
 }
