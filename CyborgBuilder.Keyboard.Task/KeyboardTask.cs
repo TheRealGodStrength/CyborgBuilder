@@ -56,7 +56,6 @@ namespace CyborgBuilder.Keyboard
                 }
             }
         }
-
         public int SleepTime { get { return (int)sleep; } }
         private double sleep;
         public double Sleep
@@ -71,7 +70,18 @@ namespace CyborgBuilder.Keyboard
                 sleep = millisec;
             }
         }
-        public bool UpdateOnIteration { get; set; }
+        public static event EventHandler<TaskEventArgs> IteratorSet;
+        private bool updateOnIteration = false;
+        public bool UpdateOnIteration 
+        {  
+            get { return updateOnIteration; }
+            set
+            {
+                updateOnIteration = value;
+                TaskEventArgs tArgs = new TaskEventArgs();
+                IteratorSet?.Invoke(this, new TaskEventArgs { Iterate = Iterations });
+            }
+        }
         public int Iterations { get; set; }
         public string[] InputText { get; set; }
 
@@ -178,6 +188,15 @@ namespace CyborgBuilder.Keyboard
             input = textBox.Lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
             return dialogResult;
         }
+    }
+    public enum TaskEvents
+    {
+        Iterate
+    }
+    public class TaskEventArgs : EventArgs
+    {
+        public int Iterate = 0;
+        public TaskEventArgs TaskEventArg { get; set; }
     }
 }
 

@@ -21,7 +21,7 @@ namespace CyborgBuilder.TaskRepo
         public MouseButton.Right RightButton { get; set;}
         public int X { get; set; }
         public int Y { get; set; }
-        public MouseCursor Cursor { get; set; }
+        public MouseCursor MouseCursor { get; set; }
         int[] ISignature.UpdatePoints { get; set; }
 
         public Signature()

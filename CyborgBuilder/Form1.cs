@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
+using CyborgBuilder.Events;
 using CyborgBuilder.Robot;
 using CyborgBuilder.Interfaces;
 namespace CyborgBuilder
@@ -73,14 +74,9 @@ namespace CyborgBuilder
         
         private void button1_Click(object sender, EventArgs e)
         {
-                
-            
-            //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.SetCursorPosition, pt.X, pt.Y);
-            
-            //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
-            
-            //Cyborg.AddMouseTask(Mouse.MouseFunctions.Function.Left_DoubleClick);
-            
+            bot
+                .Add(MouseCursor.Set)
+                .Add(MouseButton.Left.Click);
         }
 
 
@@ -110,18 +106,19 @@ namespace CyborgBuilder
 
         private void button2_Click(object sender, EventArgs e)
         {
-            ISignature sig = new CyborgBuilder.TaskRepo.Signature()
-            {
-                LeftButton = CyborgBuilder.Events.MouseButton.Left.Down,
-                TextQueue = new System.Collections.Generic.Queue<string>(),
-                Type = CyborgBuilder.Events.TaskType.Mouse,
-                X = 5,
-                Y = 5
-            };
-
-            bot.AddFunction(CyborgBuilder.Events.Keyboard.Typing.Single);
             bot.Repo.Tasks[0].Invoke();
-            //sig.GetPropertyValues(sig);
+            //ISignature sig = new CyborgBuilder.TaskRepo.Signature()
+            //{
+            //    LeftButton = CyborgBuilder.Events.MouseButton.Left.Down,
+            //    TextQueue = new System.Collections.Generic.Queue<string>(),
+            //    Type = CyborgBuilder.Events.TaskType.Mouse,
+            //    X = 5,
+            //    Y = 5
+            //};
+
+            //bot.AddFunction(CyborgBuilder.Events.Keyboard.Typing.Single);
+            //bot.Repo.Tasks[0].Invoke();
+            ////sig.GetPropertyValues(sig);
         }   
     }
 

@@ -17,7 +17,7 @@ namespace CyborgBuilder.Interfaces
         int X { get; set; }
         int Y { get; set; }
         int[] UpdatePoints { get; set; }
-        MouseCursor Cursor { get; set; }
+        MouseCursor MouseCursor { get; set; }
         void GetPropertyValues(Object obj);
     }
 }

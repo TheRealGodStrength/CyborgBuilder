@@ -10,12 +10,12 @@ namespace CyborgBuilder.Robot
     public sealed class Bot : IBot
     {
         #region Singleton Pattern
-        Bot() 
+        Bot()
         {
             Repo = new Repository();
             Tasks = new List<ITask>();
             TaskRepo.Task.Created += new EventHandler(CaptureNewTask);
-        } 
+        }
         public double SleepTime { get; set; }
         public string Name { get; set; }
         private static readonly object padLock = new object();
@@ -24,11 +24,11 @@ namespace CyborgBuilder.Robot
         {
             get
             {
-                lock(padLock)
+                lock (padLock)
                 {
                     if (instance == null)
                     {
-                        instance = new Bot(); 
+                        instance = new Bot();
                     }
                     return instance;
                 }
@@ -47,7 +47,7 @@ namespace CyborgBuilder.Robot
             ISignature signature = new Signature()
                 .Type(Events.TaskType.Mouse)
                 .LeftButton(mouseButtonEvent);
-            Repo.Receive(signature);  
+            Repo.Receive(signature);
         }
         public void AddFunction(MouseButton.Middle mouseButtonEvent)
         {
@@ -63,7 +63,17 @@ namespace CyborgBuilder.Robot
                 .RightButton(mouseButtonEvent);
             Repo.Receive(signature);
         }
-
+        public void AddFunction(MouseCursor cursor)
+        {
+            if (cursor == MouseCursor.Set)
+            {
+                ISignature signature = new Signature()
+                    .Type(Events.TaskType.Keyboard)
+                    .Cursor(MouseCursor.Set);
+                Repo.Receive(signature);
+            }
+            throw new Exception();
+        }
         void CaptureNewTask(object sender, EventArgs e)
         {
             ///ThreadPool.QueueUserWorkItem(AddTo_Tasks_Repo, sender);
@@ -75,17 +85,11 @@ namespace CyborgBuilder.Robot
             Tasks.Add(task);
             Repo.Add(task);
         }
-        public IRepository Repo { get;set; }
+        public IRepository Repo { get; set; }
 
 
-        public List<ITask> Tasks {get; set; }
+        public List<ITask> Tasks { get; set; }
 
-        public void AddKeyboardTask(Lines function, bool updateOnIteration = false)
-        {
-            //ITask kT = new KeyboardTask(function).UpdateOnIteration(updateOnIteration);
-            //Tasks.Add(kT);
-            //Repo.Add(kT);
-        }
         //public void AddMouseTask(MouseFunctions.Function function)
         //{
         //    ITask mT = new MouseTask(function);
@@ -107,12 +111,12 @@ namespace CyborgBuilder.Robot
         //}
         public void RunAllTasks()
         {
-            foreach(var task in Tasks)
+            foreach (var task in Tasks)
             {
                 task.Invoke();
             }
         }
-   
+
         public static T[] ResizeInitializeArray<T>(int start, int length, ref T[] array) where T : new()
         {
             var count = array.Count();
@@ -137,6 +141,50 @@ namespace CyborgBuilder.Robot
     }
     public static class BotExtensions
     {
+        public static Bot Add(this Bot bot, Keyboard.Typing typing)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Keyboard)
+                .Typing(typing);
+            bot.Repo.Receive(signature);
+            return bot;
+        }
+        public static Bot Add(this Bot bot, MouseButton.Left lftBtn)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Mouse)
+                .LeftButton(lftBtn);
+            bot.Repo.Receive(signature);
+            return bot;
+        }
+        public static Bot Add(this Bot bot, MouseButton.Middle midBtn)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Mouse)
+                .MiddleButton(midBtn);
+            bot.Repo.Receive(signature);
+            return bot;
+        }
+        public static Bot Add(this Bot bot, MouseButton.Right ritBtn)
+        {
+            ISignature signature = new Signature()
+                .Type(Events.TaskType.Mouse)
+                .RightButton(ritBtn);
+            bot.Repo.Receive(signature);
+            return bot;
+        }
+        public static Bot Add(this Bot bot, MouseCursor cursor)
+        {
+            if(cursor == MouseCursor.Set)
+            {
+                ISignature signature = new Signature()
+                    .Type(Events.TaskType.Mouse)
+                    .Cursor(MouseCursor.Set);
+                bot.Repo.Receive(signature);
+                return bot;
+            }
+            throw new Exception();
+        }
         public static Bot SleepTime(this Bot bot, double inSeconds)
         {
             bot.SleepTime = inSeconds;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -11,7 +12,6 @@ namespace CyborgBuilder.Mouse
     {
         public new Events.TaskType Type { get; set; }
         public new ISignature Signature { get; set; }
-
         private static MouseTask instance = null;
         public static MouseTask Instance
         {
@@ -24,15 +24,28 @@ namespace CyborgBuilder.Mouse
                 return instance;
             }
         }
+        //Func<MouseCursor, Action> DoWork = new Func<MouseCursor, Action>();
+
 
         public int SleepTime { get; set; }
         public double Sleep { get; set; }
-        public bool UpdateOnIteration { get; set; }
+        public static event EventHandler<TaskEventArgs> IteratorSet;
+        private bool updateOnIteration = false;
+        
+        public bool UpdateOnIteration 
+        { 
+            get { return updateOnIteration; }
+            set
+            {
+                updateOnIteration = value;
+                IteratorSet?.Invoke(this, new TaskEventArgs { Iterate = Iterations });
+            }
+        }
         public int Iterations { get; set; }
         public string[] InputText { get; set; }
         public object[] ActionArguments { get; set; }
-        public int X { get;set; }
-        public int Y { get;set; }
+        public int? X { get; set; }
+        public int? Y { get;set; }
         public int[] UpdatePoints { get;set; }
         public MouseButton.Left LeftButton { get;set; }
         public MouseButton.Middle MiddleButton { get;set; }
@@ -43,12 +56,17 @@ namespace CyborgBuilder.Mouse
         {
 
         }
+        private Func<object, bool, Action[]> DoWork = new Func<object, bool, Action[]>(MouseFunctions.Do);
         public void Invoke()
         {
             if (UpdateOnIteration)
             {
                 X += UpdatePoints[0];
                 Y += UpdatePoints[1];
+            }
+            if(MouseCursor == MouseCursor.Set)
+            {
+
             }
             //var action = DoWork(Function, ActionArguments);
            // action.Invoke();
@@ -96,6 +114,53 @@ namespace CyborgBuilder.Mouse
     }
     public static class MouseFunctions
     {
+        public static Action[] Do(object button, bool setCursorPos = false)
+        {
+            var actions = new Action[2];
+            if (setCursorPos)
+            {
+                var point = GetCursorPosition();
+
+                actions[0] = new Action(delegate ()
+                {
+                    SetCursorPosition(point);
+                });
+
+                Type t = button.GetType();
+                switch (t)
+                {
+                    case Type leftBtnType when leftBtnType == typeof(MouseButton.Left):
+                        actions[1] = Do((MouseButton.Left)button);
+                        return actions;
+                    case Type middleBtnType when middleBtnType == typeof(MouseButton.Middle):
+                        actions[1] = Do((MouseButton.Middle)button);
+                        return actions;
+                    case Type rightBtnType when rightBtnType == typeof(MouseButton.Right):
+                        actions[1] = Do((MouseButton.Right)button);
+                        return actions;
+                    default: throw new Exception();
+                }
+            }
+            else
+            {
+                Array.Resize(ref actions, 1);
+                Type t = button.GetType();
+                switch (t)
+                {
+                    case Type leftBtnType when leftBtnType == typeof(MouseButton.Left):
+                        actions[0] = Do((MouseButton.Left)button);
+                        return actions;
+                    case Type middleBtnType when middleBtnType == typeof(MouseButton.Middle):
+                        actions[0] = Do((MouseButton.Middle)button);
+                        return actions;
+                    case Type rightBtnType when rightBtnType == typeof(MouseButton.Right):
+                        actions[0] = Do((MouseButton.Right)button);
+                        return actions;
+                    default: throw new Exception();
+                }
+            }
+
+        }
         public static Action Do(Events.MouseButton.Left leftButton)
         {
             switch (leftButton)
@@ -336,6 +401,15 @@ namespace CyborgBuilder.Mouse
         private static extern bool SetCursorPos(int x, int y);
         [DllImport("user32.dll")]
         private static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
+    }
+    public enum TaskEvents
+    {
+        Iterate
+    }
+    public class TaskEventArgs : EventArgs
+    {
+        public int Iterate = 0;
+        public TaskEventArgs TaskEventArg { get; set; }
     }
 }
 
